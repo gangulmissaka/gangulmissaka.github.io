@@ -1,328 +1,868 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Gangul Missaka | Software Engineer</title>
+  <meta name="description" content="Portfolio of Gangul Missaka Hinguralaarachchi — Computer Science student and aspiring Software Engineer." />
 
   <style>
     :root{
-      --bg:#0b0b0f;
+      --bg0:#07070b;
+      --bg1:#0b0b12;
       --card: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.12);
-      --text:#ffffff;
+      --border: rgba(255,255,255,0.14);
+      --text: rgba(255,255,255,0.95);
       --muted: rgba(255,255,255,0.70);
-      --accent:#ffffff;
-      --max:1000px;
+      --muted2: rgba(255,255,255,0.55);
+      --shadow: 0 18px 60px rgba(0,0,0,0.55);
+      --radius: 18px;
+      --max: 1120px;
+      --accentA: rgba(255,255,255,0.95);
+      --accentB: rgba(255,255,255,0.55);
+      --ring: rgba(255,255,255,0.18);
     }
 
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;}
-
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
     body{
       margin:0;
-      font-family:Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 18% 8%, rgba(255,255,255,0.12), transparent 55%),
+        radial-gradient(800px 420px at 82% 10%, rgba(255,255,255,0.10), transparent 55%),
+        radial-gradient(900px 520px at 50% 110%, rgba(255,255,255,0.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
     }
+    a{ color:inherit; text-decoration:none; }
+    img{ max-width:100%; display:block; }
 
-    .container{
-      max-width:var(--max);
-      margin:auto;
-      padding:30px 20px 60px;
-    }
+    .wrap{ max-width: var(--max); margin:0 auto; padding: 22px 16px 70px; }
+    .skip{ position:absolute; left:-9999px; top:-9999px; }
+    .skip:focus{ left:16px; top:16px; background:#000; border:1px solid var(--border); padding:10px 12px; border-radius:10px; z-index:999; }
 
     /* NAV */
     .nav{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(7,7,11,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .navInner{
+      max-width: var(--max);
+      margin:0 auto;
+      padding: 12px 16px;
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      border-bottom:1px solid var(--border);
-      padding-bottom:15px;
-      margin-bottom:40px;
+      justify-content:space-between;
+      gap:12px;
     }
-
-    .nav a{
-      color:var(--muted);
-      text-decoration:none;
-      margin-left:15px;
-      font-weight:bold;
-      font-size:14px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      letter-spacing:0.3px;
     }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accentA), var(--accentB));
+      box-shadow: 0 0 0 6px rgba(255,255,255,0.06);
+    }
+    .navLinks{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .navLinks a{
+      color: var(--muted);
+      font-weight:800;
+      font-size: 13px;
+      padding: 10px 10px;
+      border-radius: 10px;
+      transition: 0.2s ease;
+    }
+    .navLinks a:hover{ color: var(--text); background: rgba(255,255,255,0.06); }
 
-    .nav a:hover{color:white}
+    .menuBtn{
+      display:none;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
 
     /* HERO */
     .hero{
+      padding: 26px 0 10px;
       display:grid;
-      grid-template-columns:160px 1fr;
-      gap:25px;
-      align-items:center;
-      margin-bottom:40px;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items:stretch;
     }
-
-    .hero img{
-      width:160px;
-      height:160px;
-      border-radius:50%;
-      object-fit:cover;
-      border:1px solid var(--border);
-    }
-
-    h1{margin:0;font-size:42px}
-    .subtitle{color:var(--muted);margin-top:10px}
-
-    .buttons{
-      margin-top:20px;
-    }
-
-    .btn{
-      display:inline-block;
-      padding:10px 15px;
-      margin-right:10px;
-      border-radius:8px;
-      border:1px solid var(--border);
-      text-decoration:none;
-      font-weight:bold;
-      font-size:14px;
-      color:white;
-      transition:0.2s ease;
-    }
-
-    .btn.primary{
-      background:white;
-      color:black;
-    }
-
-    .btn:hover{
-      transform:translateY(-2px);
-    }
-
-    /* CARD */
     .card{
-      background:var(--card);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .heroLeft{
+      padding: 22px;
+      position: relative;
+      overflow:hidden;
+    }
+    .heroLeft:before{
+      content:"";
+      position:absolute;
+      inset:-60px -60px auto auto;
+      width:220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 60%);
+      filter: blur(2px);
+      transform: rotate(10deg);
+      pointer-events:none;
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-weight:800;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+    h1{
+      margin:0;
+      font-size: 44px;
+      line-height: 1.06;
+      letter-spacing: -0.4px;
+    }
+    .sub{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 15.5px;
+      line-height: 1.6;
+      max-width: 62ch;
+    }
+    .quickRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 16px;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight:900;
+    }
+    .ctaRow{
+      margin-top: 18px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight:900;
+      font-size: 13.5px;
       border:1px solid var(--border);
-      border-radius:15px;
-      padding:20px;
-      margin-bottom:20px;
-      transition:0.3s ease;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor:pointer;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); background: rgba(255,255,255,0.09); }
+    .btn.primary{
+      background: #fff;
+      color:#000;
+      border-color: rgba(255,255,255,0.35);
+    }
+    .btn.primary:hover{ background: rgba(255,255,255,0.92); }
+
+    .heroRight{
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
     }
 
-    .card:hover{
-      transform:translateY(-3px);
+    .profile{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      padding: 14px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+    }
+    .avatar{
+      width: 84px; height: 84px;
+      border-radius: 999px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      filter: grayscale(10%) contrast(105%);
+      background:#111;
+    }
+    .profileText .name{ font-weight: 950; font-size: 15px; }
+    .profileText .role{ color: var(--muted); font-size: 13px; margin-top:4px; line-height:1.4; }
+
+    .miniGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mini{
+      padding: 14px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+    }
+    .mini .t{ font-weight: 950; font-size: 13px; }
+    .mini .d{ color: var(--muted); font-size: 12.5px; margin-top:6px; line-height:1.5; }
+
+    /* SECTION */
+    .section{
+      margin-top: 16px;
+      padding: 22px;
+    }
+    .sectionHeader{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 12px;
+    }
+    .sectionHeader h2{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:-0.2px;
+    }
+    .sectionHeader .hint{
+      color: var(--muted2);
+      font-size: 12.5px;
     }
 
-    .card h2{margin-top:0}
-
-    .muted{color:var(--muted)}
+    /* GRID LAYOUT */
+    .grid{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .span12{ grid-column: span 12; }
+    .span7{ grid-column: span 7; }
+    .span5{ grid-column: span 5; }
+    .span6{ grid-column: span 6; }
+    .span4{ grid-column: span 4; }
 
     /* SKILLS */
-    .skills-grid{
+    .skillCats{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:15px;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
     }
-
-    .skill-group h3{
-      margin-bottom:10px;
-      font-size:16px;
+    .cat{
+      grid-column: span 6;
+      padding: 16px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      overflow:hidden;
     }
-
-    .skill-group ul{
-      padding-left:18px;
-      margin:0;
-      line-height:1.7;
-      font-size:14px;
-      color:var(--muted);
+    .cat h3{
+      margin:0 0 10px;
+      font-size: 14px;
+      letter-spacing:-0.1px;
+      font-weight: 950;
     }
-
-    /* PROJECT */
-    .project{
-      border-top:1px solid var(--border);
-      padding:12px 0;
+    .tags{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
     }
-
-    .project:first-child{
-      border-top:none;
+    .tag{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      transition: 0.18s ease;
     }
-
-    .project-title{
-      font-weight:bold;
+    .tag:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.22);
+      color: var(--text);
     }
-
-    .project-desc{
-      font-size:14px;
-      color:var(--muted);
-      margin-top:5px;
+    .moreWrap{ margin-top: 12px; }
+    .moreBtn{
+      width:100%;
+      justify-content:center;
     }
+    .hidden{ display:none; }
 
-    /* FOOTER */
+    /* PROJECTS */
+    .projectsList{ display:flex; flex-direction:column; gap: 12px; }
+    .proj{
+      padding: 16px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      display:flex;
+      justify-content:space-between;
+      gap: 14px;
+      align-items:flex-start;
+    }
+    .proj .left .title{
+      font-weight: 950;
+      font-size: 14.5px;
+    }
+    .proj .left .desc{
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13.2px;
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+    .proj .right{
+      text-align:right;
+      min-width: 140px;
+    }
+    .proj .meta{
+      color: var(--muted2);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .proj .actions{
+      margin-top: 10px;
+      display:flex;
+      gap: 8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .chipBtn{
+      padding: 9px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .chipBtn:hover{ background: rgba(255,255,255,0.09); transform: translateY(-1px); }
+
+    /* TIMELINE */
+    .timeline{ display:flex; flex-direction:column; gap: 10px; }
+    .row{
+      padding: 14px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      align-items:flex-start;
+    }
+    .row .l .t{ font-weight: 950; font-size: 14px; }
+    .row .l .s{ margin-top: 6px; color: var(--muted); font-size: 13px; line-height:1.5; }
+    .row .r{ color: var(--muted2); font-size: 12px; font-weight: 900; white-space:nowrap; }
+
+    /* CONTACT */
+    .contactGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .contactCard{
+      padding: 16px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+    }
+    .contactCard .t{ font-weight:950; font-size: 13.5px; }
+    .contactCard .d{ margin-top: 6px; color: var(--muted); font-size: 13px; line-height:1.5; }
     .footer{
+      margin-top: 18px;
       text-align:center;
-      margin-top:40px;
-      font-size:13px;
-      color:var(--muted);
+      color: var(--muted2);
+      font-size: 12.5px;
     }
 
-    @media(max-width:600px){
-      .hero{
-        grid-template-columns:1fr;
-        text-align:center;
-      }
-
-      .hero img{
-        margin:auto;
-      }
+    /* RESPONSIVE */
+    @media (max-width: 980px){
+      .hero{ grid-template-columns: 1fr; }
+      .miniGrid{ grid-template-columns: 1fr 1fr; }
+      .span7, .span5, .span6, .span4 { grid-column: span 12; }
     }
-
+    @media (max-width: 720px){
+      .navLinks{ display:none; }
+      .menuBtn{ display:inline-flex; }
+      .miniGrid{ grid-template-columns: 1fr; }
+      .contactGrid{ grid-template-columns: 1fr; }
+      h1{ font-size: 38px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{ transition:none !important; scroll-behavior:auto; }
+    }
   </style>
 </head>
 
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
-<div class="container">
+<header class="nav">
+  <div class="navInner">
+    <div class="brand"><span class="dot"></span> Gangul Missaka</div>
 
-  <!-- NAV -->
-  <div class="nav">
-    <div><strong>Gangul Missaka</strong></div>
-    <div>
+    <nav class="navLinks" aria-label="Primary">
       <a href="#about">About</a>
       <a href="#skills">Skills</a>
       <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
+      <a href="#certs">Certificates</a>
       <a href="#contact">Contact</a>
+    </nav>
+
+    <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="hidden" style="max-width:var(--max); margin:0 auto; padding:0 16px 12px;">
+    <div class="card" style="padding:10px; border-radius:16px; box-shadow:none;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <a class="btn" href="#about">About</a>
+        <a class="btn" href="#skills">Skills</a>
+        <a class="btn" href="#projects">Projects</a>
+        <a class="btn" href="#education">Education</a>
+        <a class="btn" href="#certs">Certificates</a>
+        <a class="btn" href="#contact">Contact</a>
+      </div>
     </div>
   </div>
+</header>
+
+<main id="main" class="wrap">
 
   <!-- HERO -->
-  <div class="hero">
-    <img src="profile.jpg" alt="Gangul Missaka">
+  <section class="hero">
+    <div class="card heroLeft">
+      <div class="kicker">🚀 Building real projects · Learning by doing</div>
+      <h1>Hi, I’m Gangul Missaka 👋</h1>
+      <div class="sub">
+        Computer Science student focused on software engineering. I enjoy building practical solutions in
+        networking, data, and web development—keeping things clean, reliable, and user-friendly.
+      </div>
 
-    <div>
-      <h1>Hi, I'm Gangul Missaka 👋</h1>
-      <div class="subtitle">Computer Science Student · Aspiring Software Engineer</div>
+      <div class="quickRow" aria-label="Highlights">
+        <div class="pill">Networking</div>
+        <div class="pill">SQL & Databases</div>
+        <div class="pill">Web UI</div>
+        <div class="pill">Data Quality</div>
+        <div class="pill">Cybersecurity Basics</div>
+      </div>
 
-      <div class="buttons">
-        <a class="btn primary" href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/" target="_blank">LinkedIn</a>
-        <a class="btn" href="https://github.com/gangulmissaka" target="_blank">GitHub</a>
+      <div class="ctaRow">
+        <a class="btn primary" target="_blank" rel="noopener"
+           href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/">LinkedIn</a>
+        <a class="btn" target="_blank" rel="noopener"
+           href="https://github.com/gangulmissaka">GitHub</a>
         <a class="btn" href="#projects">View Projects</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ABOUT -->
-  <div class="card" id="about">
-    <h2>About Me</h2>
-    <p class="muted">
-      I am currently studying Computer Science and focusing on building strong foundations in software engineering.
-      I enjoy learning by building real systems in networking, data, and web development.
-      My goal is to continuously improve and contribute to impactful technical projects.
-    </p>
-  </div>
-
-  <!-- SKILLS -->
-  <div class="card" id="skills">
-    <h2>Skills</h2>
-
-    <div class="skills-grid">
-
-      <div class="skill-group">
-        <h3>Programming & Development</h3>
-        <ul>
-          <li>Programming Fundamentals</li>
-          <li>Object-Oriented Programming (OOP)</li>
-          <li>Object Oriented Design</li>
-          <li>Algorithms</li>
-          <li>Data Structures</li>
-          <li>Systems Analysis</li>
-          <li>Use Case Diagrams & Analysis</li>
-        </ul>
-      </div>
-
-      <div class="skill-group">
-        <h3>Data & Databases</h3>
-        <ul>
-          <li>SQL</li>
-          <li>Database Design</li>
-          <li>Data Modeling</li>
-          <li>Database Management Systems (DBMS)</li>
-          <li>Data Quality</li>
-          <li>Data Governance</li>
-          <li>Data Management & Analysis</li>
-        </ul>
-      </div>
-
-      <div class="skill-group">
-        <h3>Networking & Security</h3>
-        <ul>
-          <li>Computer Networking</li>
-          <li>Cybersecurity</li>
-          <li>Information Security</li>
-          <li>Troubleshooting</li>
-          <li>Technical Support</li>
-        </ul>
-      </div>
-
-      <div class="skill-group">
-        <h3>Tools & Other Skills</h3>
-        <ul>
-          <li>Web Design</li>
-          <li>Cascading Style Sheets (CSS)</li>
-          <li>Adobe Photoshop</li>
-          <li>Adobe Illustrator</li>
-          <li>Microsoft Office</li>
-          <li>Problem Solving</li>
-          <li>Critical Thinking</li>
-          <li>Leadership & Teamwork</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PROJECTS -->
-  <div class="card" id="projects">
-    <h2>Projects</h2>
-
-    <div class="project">
-      <div class="project-title">Enterprise Network Design (Cisco Packet Tracer)</div>
-      <div class="project-desc">
-        Designed and simulated a multi-site enterprise network including VLANs, routing, DHCP, and connectivity testing.
+        <a class="btn" href="#contact">Contact</a>
       </div>
     </div>
 
-    <div class="project">
-      <div class="project-title">Unity Roll-a-Ball Game</div>
-      <div class="project-desc">
-        Developed a beginner Unity project focusing on movement, collisions, and UI mechanics.
+    <aside class="card heroRight">
+      <div class="profile">
+        <!-- Upload profile.jpg to repo root -->
+        <img class="avatar" src="profile.jpg" alt="Portrait of Gangul Missaka" />
+        <div class="profileText">
+          <div class="name">Gangul Missaka Hinguralaarachchi</div>
+          <div class="role">Computer Science (Software Engineering) · Edith Cowan University</div>
+        </div>
+      </div>
+
+      <div class="miniGrid">
+        <div class="mini">
+          <div class="t">Currently focused on</div>
+          <div class="d">Building portfolio projects, improving problem solving, and strengthening core CS concepts.</div>
+        </div>
+        <div class="mini">
+          <div class="t">Open to</div>
+          <div class="d">Internships, junior roles, and collaborations that help me grow as an engineer.</div>
+        </div>
+      </div>
+
+      <div class="mini">
+        <div class="t">Quick Contact</div>
+        <div class="d">
+          Email: <a href="mailto:missakabro@gmail.com" style="text-decoration:underline;">missakabro@gmail.com</a><br/>
+          GitHub: <a href="https://github.com/gangulmissaka" target="_blank" rel="noopener" style="text-decoration:underline;">@gangulmissaka</a>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- MAIN GRID -->
+  <section class="grid">
+
+    <!-- ABOUT -->
+    <div class="card section span7" id="about">
+      <div class="sectionHeader">
+        <h2>About</h2>
+        <div class="hint">A short summary of who I am</div>
+      </div>
+      <div class="muted" style="line-height:1.75;">
+        I’m a Computer Science student who likes learning by building. I’ve worked on university projects involving
+        enterprise networking, data governance concepts, and web interfaces. I value strong fundamentals, clear
+        communication, and a practical engineering mindset.
+        <br/><br/>
+        My goal is to keep improving—step by step—and contribute to real systems that are useful and well-structured.
+      </div>
+
+      <div class="quickRow" style="margin-top:14px;">
+        <div class="pill">Problem Solving</div>
+        <div class="pill">Critical Thinking</div>
+        <div class="pill">Teamwork</div>
+        <div class="pill">Presentation</div>
+        <div class="pill">Academic Writing</div>
       </div>
     </div>
 
-    <div class="project">
-      <div class="project-title">Web Development Practice Projects</div>
-      <div class="project-desc">
-        Built responsive web interfaces to strengthen front-end fundamentals.
+    <!-- SNAPSHOT -->
+    <div class="card section span5">
+      <div class="sectionHeader">
+        <h2>Snapshot</h2>
+        <div class="hint">What I bring</div>
+      </div>
+
+      <div class="timeline">
+        <div class="row">
+          <div class="l">
+            <div class="t">Strengths</div>
+            <div class="s">Consistency, structured learning, and clean documentation.</div>
+          </div>
+          <div class="r">Core</div>
+        </div>
+        <div class="row">
+          <div class="l">
+            <div class="t">Interests</div>
+            <div class="s">Networks, data quality/governance, and building responsive UI.</div>
+          </div>
+          <div class="r">Focus</div>
+        </div>
+        <div class="row">
+          <div class="l">
+            <div class="t">Working style</div>
+            <div class="s">Plan → build → test → improve (and document clearly).</div>
+          </div>
+          <div class="r">Process</div>
+        </div>
       </div>
     </div>
 
-  </div>
+    <!-- SKILLS -->
+    <div class="card section span12" id="skills">
+      <div class="sectionHeader">
+        <h2>Skills</h2>
+        <div class="hint">Organized by category (no Java included)</div>
+      </div>
 
-  <!-- CONTACT -->
-  <div class="card" id="contact">
-    <h2>Contact</h2>
-    <p class="muted">Feel free to reach out for collaboration or opportunities.</p>
+      <div class="skillCats">
+        <div class="cat">
+          <h3>Programming & CS</h3>
+          <div class="tags">
+            <span class="tag">Programming Fundamentals</span>
+            <span class="tag">Object-Oriented Programming (OOP)</span>
+            <span class="tag">Object Oriented Design</span>
+            <span class="tag">Data Structures</span>
+            <span class="tag">Algorithms</span>
+            <span class="tag">Discrete Mathematics</span>
+            <span class="tag">Logic</span>
+            <span class="tag">Operating Systems</span>
+          </div>
+        </div>
 
-    <div class="buttons">
-      <a class="btn primary" href="mailto:missakabro@gmail.com">Email Me</a>
-      <a class="btn" href="https://github.com/gangulmissaka" target="_blank">GitHub</a>
-      <a class="btn" href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/" target="_blank">LinkedIn</a>
+        <div class="cat">
+          <h3>Data & Databases</h3>
+          <div class="tags">
+            <span class="tag">SQL</span>
+            <span class="tag">Database Design</span>
+            <span class="tag">Data Modeling</span>
+            <span class="tag">DBMS</span>
+            <span class="tag">Data Quality</span>
+            <span class="tag">Data Cleaning</span>
+            <span class="tag">Data Governance</span>
+            <span class="tag">Information Management</span>
+            <span class="tag">Data Analysis</span>
+            <span class="tag">Data Management</span>
+          </div>
+        </div>
+
+        <div class="cat">
+          <h3>Networking & Security</h3>
+          <div class="tags">
+            <span class="tag">Computer Networking</span>
+            <span class="tag">Cybersecurity</span>
+            <span class="tag">Information Security</span>
+            <span class="tag">Troubleshooting</span>
+            <span class="tag">Technical Support</span>
+          </div>
+        </div>
+
+        <div class="cat">
+          <h3>Design & Tools</h3>
+          <div class="tags">
+            <span class="tag">Web Design</span>
+            <span class="tag">CSS</span>
+            <span class="tag">Microsoft Office</span>
+            <span class="tag">Adobe Photoshop</span>
+            <span class="tag">Adobe Illustrator</span>
+            <span class="tag">Computer Literacy</span>
+            <span class="tag">Information Technology</span>
+          </div>
+        </div>
+
+        <div class="cat" style="grid-column: span 12;">
+          <h3>Soft Skills</h3>
+          <div class="tags">
+            <span class="tag">Leadership</span>
+            <span class="tag">Team Leadership</span>
+            <span class="tag">Teamwork</span>
+            <span class="tag">Problem Solving</span>
+            <span class="tag">Critical Thinking</span>
+            <span class="tag">Presentation Skills</span>
+            <span class="tag">Academic Writing</span>
+            <span class="tag">English</span>
+          </div>
+
+          <div class="moreWrap">
+            <button class="btn moreBtn" id="moreSkillsBtn" type="button" aria-expanded="false">
+              Show more (AI / Project Planning / Systems Analysis)
+            </button>
+            <div id="moreSkills" class="hidden" style="margin-top:12px;">
+              <div class="tags">
+                <span class="tag">Artificial Intelligence (AI)</span>
+                <span class="tag">Project Planning</span>
+                <span class="tag">Project Management</span>
+                <span class="tag">Systems Analysis</span>
+                <span class="tag">Use Case Diagrams</span>
+                <span class="tag">Use Case Analysis</span>
+              </div>
+              <div class="muted2" style="margin-top:10px; font-size:12.5px;">
+                Note: I’m building these skills through coursework and hands-on projects.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </div>
+
+    <!-- PROJECTS -->
+    <div class="card section span12" id="projects">
+      <div class="sectionHeader">
+        <h2>Projects</h2>
+        <div class="hint">Clear, recruiter-friendly summaries</div>
+      </div>
+
+      <div class="projectsList">
+        <div class="proj">
+          <div class="left">
+            <div class="title">Enterprise Network Design (Cisco Packet Tracer)</div>
+            <div class="desc">
+              Designed and simulated a multi-site enterprise network for a university assignment. Implemented VLANs,
+              routing, DHCP, and verified end-to-end connectivity between sites.
+            </div>
+          </div>
+          <div class="right">
+            <div class="meta">2026 · Networking</div>
+            <div class="actions">
+              <!-- If you have a repo link, replace # -->
+              <a class="chipBtn" href="#" onclick="return false;">Repo (add later)</a>
+              <a class="chipBtn" href="#contact">Contact</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="left">
+            <div class="title">Unity Roll-a-Ball (Practice Game)</div>
+            <div class="desc">
+              Built a Unity mini-game to practice movement, collisions, and UI. Focused on clean scripts, scene setup,
+              and iterative testing.
+            </div>
+          </div>
+          <div class="right">
+            <div class="meta">2026 · Game Dev</div>
+            <div class="actions">
+              <a class="chipBtn" href="#" onclick="return false;">Repo (add later)</a>
+              <a class="chipBtn" href="#contact">Contact</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="left">
+            <div class="title">Web UI Practice Builds</div>
+            <div class="desc">
+              Small responsive web pages to strengthen layout, typography, and clean UI structure. Focused on mobile-first
+              design and accessibility basics.
+            </div>
+          </div>
+          <div class="right">
+            <div class="meta">2026 · Web</div>
+            <div class="actions">
+              <a class="chipBtn" href="#" onclick="return false;">Repo (add later)</a>
+              <a class="chipBtn" href="#contact">Contact</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="card section span6" id="education">
+      <div class="sectionHeader">
+        <h2>Education</h2>
+        <div class="hint">Where I learned</div>
+      </div>
+
+      <div class="timeline">
+        <div class="row">
+          <div class="l">
+            <div class="t">Edith Cowan University</div>
+            <div class="s">Computer Science (Software Engineering)</div>
+          </div>
+          <div class="r">Ongoing</div>
+        </div>
+        <div class="row">
+          <div class="l">
+            <div class="t">University of Colombo</div>
+            <div class="s">Certificate Course in Computer Applications</div>
+          </div>
+          <div class="r">Completed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTS -->
+    <div class="card section span6" id="certs">
+      <div class="sectionHeader">
+        <h2>Certificates</h2>
+        <div class="hint">Highlights</div>
+      </div>
+
+      <div class="timeline">
+        <div class="row">
+          <div class="l">
+            <div class="t">Data Quality, Data Management & Data Governance</div>
+            <div class="s">Certificate (focus on governance fundamentals, quality, and management)</div>
+          </div>
+          <div class="r">Certificate</div>
+        </div>
+        <div class="row">
+          <div class="l">
+            <div class="t">Computer Applications</div>
+            <div class="s">Microsoft Office, IT basics, and productivity tools</div>
+          </div>
+          <div class="r">Certificate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="card section span12" id="contact">
+      <div class="sectionHeader">
+        <h2>Contact</h2>
+        <div class="hint">Let’s connect</div>
+      </div>
+
+      <div class="muted" style="line-height:1.7;">
+        If you’d like to collaborate, discuss opportunities, or ask about my projects, feel free to reach out.
+      </div>
+
+      <div class="ctaRow" style="margin-top:14px;">
+        <a class="btn primary" href="mailto:missakabro@gmail.com">Email Me</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://github.com/gangulmissaka">GitHub</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/">LinkedIn</a>
+      </div>
+
+      <div class="contactGrid">
+        <div class="contactCard">
+          <div class="t">Email</div>
+          <div class="d"><a href="mailto:missakabro@gmail.com" style="text-decoration:underline;">missakabro@gmail.com</a></div>
+        </div>
+        <div class="contactCard">
+          <div class="t">Location</div>
+          <div class="d">Sri Lanka · Open to remote / internships</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
 
   <div class="footer">
-    © <script>document.write(new Date().getFullYear())</script> Gangul Missaka · All rights reserved.
+    © <span id="yr"></span> Gangul Missaka · All rights reserved.
   </div>
+</main>
 
-</div>
+<script>
+  // Year
+  document.getElementById("yr").textContent = new Date().getFullYear();
 
+  // Mobile menu toggle
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  if(menuBtn && mobileMenu){
+    menuBtn.addEventListener("click", () => {
+      const isOpen = menuBtn.getAttribute("aria-expanded") === "true";
+      menuBtn.setAttribute("aria-expanded", String(!isOpen));
+      mobileMenu.classList.toggle("hidden");
+    });
+    // Close menu when clicking a link
+    mobileMenu.querySelectorAll("a").forEach(a=>{
+      a.addEventListener("click", ()=> {
+        mobileMenu.classList.add("hidden");
+        menuBtn.setAttribute("aria-expanded","false");
+      });
+    });
+  }
+
+  // Show more skills
+  const moreBtn = document.getElementById("moreSkillsBtn");
+  const moreSkills = document.getElementById("moreSkills");
+  if(moreBtn && moreSkills){
+    moreBtn.addEventListener("click", () => {
+      const isHidden = moreSkills.classList.contains("hidden");
+      moreSkills.classList.toggle("hidden");
+      moreBtn.setAttribute("aria-expanded", String(isHidden));
+      moreBtn.textContent = isHidden ? "Show less" : "Show more (AI / Project Planning / Systems Analysis)";
+    });
+  }
+</script>
 </body>
 </html>
