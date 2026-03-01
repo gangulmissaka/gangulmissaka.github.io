@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Gangul Missaka | Software Engineer</title>
-  <meta name="description" content="Portfolio of Gangul Missaka Hinguralaarachchi — Computer Science student and aspiring Software Engineer." />
+  <meta name="description" content="Portfolio of Gangul Missaka Hinguralaarachchi — Computer Science (Software Engineering) student at ECU Sri Lanka." />
 
   <style>
     :root{
@@ -20,7 +20,6 @@
       --max: 1120px;
       --accentA: rgba(255,255,255,0.95);
       --accentB: rgba(255,255,255,0.55);
-      --ring: rgba(255,255,255,0.18);
     }
 
     *{ box-sizing:border-box; }
@@ -107,12 +106,14 @@
       gap: 18px;
       align-items:stretch;
     }
+
     .card{
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
+
     .heroLeft{
       padding: 22px;
       position: relative;
@@ -155,6 +156,7 @@
       line-height: 1.6;
       max-width: 62ch;
     }
+
     .quickRow{
       display:flex;
       gap:10px;
@@ -170,6 +172,7 @@
       font-size: 12.5px;
       font-weight:900;
     }
+
     .ctaRow{
       margin-top: 18px;
       display:flex;
@@ -198,7 +201,6 @@
       color:#000;
       border-color: rgba(255,255,255,0.35);
     }
-    .btn.primary:hover{ background: rgba(255,255,255,0.92); }
 
     .heroRight{
       padding: 18px;
@@ -209,21 +211,24 @@
 
     .profile{
       display:flex;
-      gap:14px;
+      gap:16px;
       align-items:center;
-      padding: 14px;
+      padding: 16px;
       border-radius: 16px;
       border:1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.04);
     }
     .avatar{
-      width: 84px; height: 84px;
+      width: 110px;
+      height: 110px;
       border-radius: 999px;
       object-fit: cover;
+      object-position: center top;
       border: 1px solid rgba(255,255,255,0.18);
       box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-      filter: grayscale(10%) contrast(105%);
+      filter: contrast(105%);
       background:#111;
+      flex: 0 0 auto;
     }
     .profileText .name{ font-weight: 950; font-size: 15px; }
     .profileText .role{ color: var(--muted); font-size: 13px; margin-top:4px; line-height:1.4; }
@@ -275,7 +280,6 @@
     .span7{ grid-column: span 7; }
     .span5{ grid-column: span 5; }
     .span6{ grid-column: span 6; }
-    .span4{ grid-column: span 4; }
 
     /* SKILLS */
     .skillCats{
@@ -318,10 +322,7 @@
       color: var(--text);
     }
     .moreWrap{ margin-top: 12px; }
-    .moreBtn{
-      width:100%;
-      justify-content:center;
-    }
+    .moreBtn{ width:100%; justify-content:center; }
     .hidden{ display:none; }
 
     /* PROJECTS */
@@ -336,10 +337,7 @@
       gap: 14px;
       align-items:flex-start;
     }
-    .proj .left .title{
-      font-weight: 950;
-      font-size: 14.5px;
-    }
+    .proj .left .title{ font-weight: 950; font-size: 14.5px; }
     .proj .left .desc{
       margin-top: 7px;
       color: var(--muted);
@@ -347,15 +345,8 @@
       line-height: 1.55;
       max-width: 70ch;
     }
-    .proj .right{
-      text-align:right;
-      min-width: 140px;
-    }
-    .proj .meta{
-      color: var(--muted2);
-      font-size: 12px;
-      font-weight: 900;
-    }
+    .proj .right{ text-align:right; min-width: 140px; }
+    .proj .meta{ color: var(--muted2); font-size: 12px; font-weight: 900; }
     .proj .actions{
       margin-top: 10px;
       display:flex;
@@ -372,7 +363,6 @@
       font-weight: 900;
       font-size: 12px;
     }
-    .chipBtn:hover{ background: rgba(255,255,255,0.09); transform: translateY(-1px); }
 
     /* TIMELINE */
     .timeline{ display:flex; flex-direction:column; gap: 10px; }
@@ -416,7 +406,7 @@
     @media (max-width: 980px){
       .hero{ grid-template-columns: 1fr; }
       .miniGrid{ grid-template-columns: 1fr 1fr; }
-      .span7, .span5, .span6, .span4 { grid-column: span 12; }
+      .span7, .span5, .span6 { grid-column: span 12; }
     }
     @media (max-width: 720px){
       .navLinks{ display:none; }
@@ -424,9 +414,6 @@
       .miniGrid{ grid-template-columns: 1fr; }
       .contactGrid{ grid-template-columns: 1fr; }
       h1{ font-size: 38px; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      *{ transition:none !important; scroll-behavior:auto; }
     }
   </style>
 </head>
@@ -450,7 +437,6 @@
     <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
   </div>
 
-  <!-- Mobile menu -->
   <div id="mobileMenu" class="hidden" style="max-width:var(--max); margin:0 auto; padding:0 16px 12px;">
     <div class="card" style="padding:10px; border-radius:16px; box-shadow:none;">
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -467,20 +453,24 @@
 
 <main id="main" class="wrap">
 
-  <!-- HERO -->
+  <!-- HERO (FIXED) -->
+  <section class="hero">
+    <div class="card heroLeft">
+      <div class="kicker">🚀 Learning by doing</div>
+      <h1>Hi, I’m Gangul Missaka 👋</h1>
+
       <div class="sub">
         I’m a Computer Science (Software Engineering) student at Edith Cowan University (Sri Lanka).
-        I’m building my skills step by step through coursework and hands-on practice, especially in
-        software engineering, data structures, systems analysis, databases, networking, and cybersecurity.
-        I like creating clean, practical projects and improving them through testing and feedback.
+        I’m building my skills through coursework and hands-on practice in software engineering, data structures,
+        systems analysis, databases, networking, and cybersecurity.
       </div>
 
       <div class="quickRow" aria-label="Highlights">
         <div class="pill">Networking</div>
         <div class="pill">SQL & Databases</div>
-        <div class="pill">Web UI</div>
-        <div class="pill">Data Quality</div>
-        <div class="pill">Cybersecurity Basics</div>
+        <div class="pill">Systems Analysis</div>
+        <div class="pill">Data Structures</div>
+        <div class="pill">Cybersecurity</div>
       </div>
 
       <div class="ctaRow">
@@ -495,11 +485,10 @@
 
     <aside class="card heroRight">
       <div class="profile">
-        <!-- Upload profile.jpg to repo root -->
         <img class="avatar" src="profile.jpg" alt="Portrait of Gangul Missaka" />
         <div class="profileText">
           <div class="name">Gangul Missaka Hinguralaarachchi</div>
-          <div class="role">Computer Science (Software Engineering) · Edith Cowan University</div>
+          <div class="role">BSc Computer Science (Software Engineering) · ECU Sri Lanka</div>
         </div>
       </div>
 
@@ -528,18 +517,18 @@
   <section class="grid">
 
     <!-- ABOUT -->
+    <div class="card section span7" id="about">
+      <div class="sectionHeader">
+        <h2>About</h2>
+        <div class="hint">A short summary of who I am</div>
+      </div>
+
       <div class="muted" style="line-height:1.75;">
         I’m studying Computer Science (Software Engineering) at Edith Cowan University (Sri Lanka).
-        Right now, I’m focused on building a strong foundation in programming, data structures, and
-        software engineering concepts while also learning how real systems work through networking,
-        databases, and security modules.
+        I’m focused on building a strong foundation in programming, data structures, and software engineering,
+        while learning how real systems work through modules like systems analysis, databases, networking, and security.
         <br><br>
-        In my studies I’ve worked with topics like Systems Analysis, Object-Oriented Analysis & Design,
-        Project Methods & Professionalism, Applied Communications, Computer Security, and Intelligent Systems.
-        I’m also improving my ability to plan projects, document work clearly, and communicate solutions.
-        <br><br>
-        My goal is to become a reliable software engineer who can build clean, well-structured applications
-        and keep learning continuously.
+        My goal is to become a reliable software engineer who can build clean, well-structured applications and keep improving through practice.
       </div>
 
       <div class="quickRow" style="margin-top:14px;">
@@ -569,14 +558,14 @@
         <div class="row">
           <div class="l">
             <div class="t">Interests</div>
-            <div class="s">Networks, data quality/governance, and building responsive UI.</div>
+            <div class="s">Networking, databases, data quality, and building responsive UI.</div>
           </div>
           <div class="r">Focus</div>
         </div>
         <div class="row">
           <div class="l">
             <div class="t">Working style</div>
-            <div class="s">Plan → build → test → improve (and document clearly).</div>
+            <div class="s">Plan, build, test, improve, and document clearly.</div>
           </div>
           <div class="r">Process</div>
         </div>
@@ -587,7 +576,7 @@
     <div class="card section span12" id="skills">
       <div class="sectionHeader">
         <h2>Skills</h2>
-        <div class="hint">Organized by category (no Java included)</div>
+        <div class="hint">Organized by category</div>
       </div>
 
       <div class="skillCats">
@@ -615,9 +604,6 @@
             <span class="tag">Data Quality</span>
             <span class="tag">Data Cleaning</span>
             <span class="tag">Data Governance</span>
-            <span class="tag">Information Management</span>
-            <span class="tag">Data Analysis</span>
-            <span class="tag">Data Management</span>
           </div>
         </div>
 
@@ -640,8 +626,6 @@
             <span class="tag">Microsoft Office</span>
             <span class="tag">Adobe Photoshop</span>
             <span class="tag">Adobe Illustrator</span>
-            <span class="tag">Computer Literacy</span>
-            <span class="tag">Information Technology</span>
           </div>
         </div>
 
@@ -660,7 +644,7 @@
 
           <div class="moreWrap">
             <button class="btn moreBtn" id="moreSkillsBtn" type="button" aria-expanded="false">
-              Show more (AI / Project Planning / Systems Analysis)
+              Show more skills
             </button>
             <div id="moreSkills" class="hidden" style="margin-top:12px;">
               <div class="tags">
@@ -672,7 +656,7 @@
                 <span class="tag">Use Case Analysis</span>
               </div>
               <div class="muted2" style="margin-top:10px; font-size:12.5px;">
-                Note: I’m building these skills through coursework and hands-on projects.
+                These are skills I’m developing through coursework and practice.
               </div>
             </div>
           </div>
@@ -685,7 +669,7 @@
     <div class="card section span12" id="projects">
       <div class="sectionHeader">
         <h2>Projects</h2>
-        <div class="hint">Clear, recruiter-friendly summaries</div>
+        <div class="hint">Short summaries</div>
       </div>
 
       <div class="projectsList">
@@ -694,13 +678,12 @@
             <div class="title">Enterprise Network Design (Cisco Packet Tracer)</div>
             <div class="desc">
               Designed and simulated a multi-site enterprise network for a university assignment. Implemented VLANs,
-              routing, DHCP, and verified end-to-end connectivity between sites.
+              routing, DHCP, and verified connectivity between sites.
             </div>
           </div>
           <div class="right">
             <div class="meta">2026 · Networking</div>
             <div class="actions">
-              <!-- If you have a repo link, replace # -->
               <a class="chipBtn" href="#" onclick="return false;">Repo (add later)</a>
               <a class="chipBtn" href="#contact">Contact</a>
             </div>
@@ -711,8 +694,7 @@
           <div class="left">
             <div class="title">Unity Roll-a-Ball (Practice Game)</div>
             <div class="desc">
-              Built a Unity mini-game to practice movement, collisions, and UI. Focused on clean scripts, scene setup,
-              and iterative testing.
+              Built a Unity mini-game to practice movement, collisions, and UI. Focused on clean scripts and testing.
             </div>
           </div>
           <div class="right">
@@ -728,8 +710,7 @@
           <div class="left">
             <div class="title">Web UI Practice Builds</div>
             <div class="desc">
-              Small responsive web pages to strengthen layout, typography, and clean UI structure. Focused on mobile-first
-              design and accessibility basics.
+              Small responsive web pages to strengthen layout, typography, and clean UI structure.
             </div>
           </div>
           <div class="right">
@@ -753,8 +734,8 @@
       <div class="timeline">
         <div class="row">
           <div class="l">
-            <div class="t">Edith Cowan University</div>
-            <div class="s">Computer Science (Software Engineering)</div>
+            <div class="t">Edith Cowan University (Sri Lanka)</div>
+            <div class="s">BSc Computer Science (Software Engineering)</div>
           </div>
           <div class="r">Ongoing</div>
         </div>
@@ -779,14 +760,14 @@
         <div class="row">
           <div class="l">
             <div class="t">Data Quality, Data Management & Data Governance</div>
-            <div class="s">Certificate (focus on governance fundamentals, quality, and management)</div>
+            <div class="s">Certificate focused on governance fundamentals, quality, and management.</div>
           </div>
           <div class="r">Certificate</div>
         </div>
         <div class="row">
           <div class="l">
             <div class="t">Computer Applications</div>
-            <div class="s">Microsoft Office, IT basics, and productivity tools</div>
+            <div class="s">Microsoft Office, IT basics, and productivity tools.</div>
           </div>
           <div class="r">Certificate</div>
         </div>
@@ -801,7 +782,7 @@
       </div>
 
       <div class="muted" style="line-height:1.7;">
-        If you’d like to collaborate, discuss opportunities, or ask about my projects, feel free to reach out.
+        If you’d like to collaborate or discuss opportunities, feel free to reach out.
       </div>
 
       <div class="ctaRow" style="margin-top:14px;">
@@ -817,7 +798,7 @@
         </div>
         <div class="contactCard">
           <div class="t">Location</div>
-          <div class="d">Sri Lanka · Open to remote / internships</div>
+          <div class="d">Sri Lanka · Open to internships / junior roles</div>
         </div>
       </div>
     </div>
@@ -830,10 +811,8 @@
 </main>
 
 <script>
-  // Year
   document.getElementById("yr").textContent = new Date().getFullYear();
 
-  // Mobile menu toggle
   const menuBtn = document.getElementById("menuBtn");
   const mobileMenu = document.getElementById("mobileMenu");
   if(menuBtn && mobileMenu){
@@ -842,7 +821,6 @@
       menuBtn.setAttribute("aria-expanded", String(!isOpen));
       mobileMenu.classList.toggle("hidden");
     });
-    // Close menu when clicking a link
     mobileMenu.querySelectorAll("a").forEach(a=>{
       a.addEventListener("click", ()=> {
         mobileMenu.classList.add("hidden");
@@ -851,7 +829,6 @@
     });
   }
 
-  // Show more skills
   const moreBtn = document.getElementById("moreSkillsBtn");
   const moreSkills = document.getElementById("moreSkills");
   if(moreBtn && moreSkills){
@@ -859,7 +836,7 @@
       const isHidden = moreSkills.classList.contains("hidden");
       moreSkills.classList.toggle("hidden");
       moreBtn.setAttribute("aria-expanded", String(isHidden));
-      moreBtn.textContent = isHidden ? "Show less" : "Show more (AI / Project Planning / Systems Analysis)";
+      moreBtn.textContent = isHidden ? "Show less skills" : "Show more skills";
     });
   }
 </script>
