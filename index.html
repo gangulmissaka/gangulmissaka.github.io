@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gangul Missaka | Software Engineer</title>
+
   <style>
     :root{
       --bg:#0b0b0f;
@@ -15,7 +16,10 @@
       --accent:#ffffff;
       --max: 980px;
     }
+
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth;}
+
     body{
       margin:0;
       font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -23,8 +27,11 @@
                   var(--bg);
       color:var(--text);
     }
+
     a{color:inherit}
+
     .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 60px;}
+
     .nav{
       display:flex; justify-content:space-between; align-items:center;
       padding:14px 0;
@@ -33,9 +40,18 @@
       background: rgba(11,11,15,0.6);
       z-index:10;
     }
+
     .brand{font-weight:800; letter-spacing:0.5px}
-    .links a{margin-left:14px; text-decoration:none; color:var(--muted)}
+
+    .links a{
+      margin-left:14px;
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:700;
+      font-size:14px;
+    }
     .links a:hover{color:var(--text)}
+
     .hero{
       padding:48px 0 26px;
       display:grid;
@@ -43,6 +59,7 @@
       gap:22px;
       align-items:center;
     }
+
     .avatar{
       width:160px; height:160px;
       border-radius:999px;
@@ -52,30 +69,39 @@
       filter: grayscale(10%) contrast(105%);
       background: #111;
     }
+
     h1{margin:0; font-size:44px; line-height:1.05}
+
     .tag{margin-top:10px; color:var(--muted); font-size:16px}
+
     .ctaRow{margin-top:18px; display:flex; gap:12px; flex-wrap:wrap}
+
     .btn{
       display:inline-block;
       padding:12px 16px;
       border-radius:10px;
       text-decoration:none;
-      font-weight:700;
+      font-weight:800;
       border:1px solid var(--cardBorder);
       background: rgba(255,255,255,0.08);
+      transition: transform 0.2s ease, background 0.2s ease;
     }
+
     .btn.primary{
       background: var(--accent);
       color:#000;
       border-color: rgba(255,255,255,0.28);
     }
-    .btn:hover{transform: translateY(-1px)}
+
+    .btn:hover{transform: translateY(-2px);}
+
     .grid{
       margin-top:22px;
       display:grid;
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
     }
+
     .card{
       grid-column: span 12;
       background: var(--card);
@@ -83,11 +109,21 @@
       border-radius:16px;
       padding:18px;
       box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+      transition: transform 0.25s ease, border-color 0.25s ease;
     }
+
+    .card:hover{
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.22);
+    }
+
     .card h2{margin:0 0 10px; font-size:22px}
+
     .muted{color:var(--muted)}
     .muted2{color:var(--muted2)}
+
     .pillRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+
     .pill{
       padding:8px 10px;
       border-radius:999px;
@@ -95,17 +131,20 @@
       background: rgba(255,255,255,0.06);
       color:var(--muted);
       font-size:13px;
-      font-weight:700;
+      font-weight:800;
     }
+
     .project{
       display:flex; justify-content:space-between; gap:14px;
       padding:12px 0;
       border-top:1px solid rgba(255,255,255,0.08);
     }
+
     .project:first-of-type{border-top:0; padding-top:0}
-    .project .title{font-weight:800}
+    .project .title{font-weight:900}
     .project .desc{color:var(--muted2); margin-top:6px; font-size:14px}
     .project .meta{color:var(--muted2); font-size:13px; white-space:nowrap}
+
     .footer{
       margin-top:22px;
       color:var(--muted2);
@@ -115,8 +154,8 @@
 
     @media (min-width: 820px){
       .card.half{grid-column: span 6;}
-      .card.third{grid-column: span 4;}
     }
+
     @media (max-width: 560px){
       .hero{grid-template-columns: 1fr; text-align:center}
       .ctaRow{justify-content:center}
@@ -128,8 +167,8 @@
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="wrap">
     <div class="nav">
       <div class="brand">Gangul Missaka</div>
@@ -142,7 +181,7 @@
     </div>
 
     <section class="hero">
-      <!-- IMPORTANT: upload your image as profile.jpg in the repo root -->
+      <!-- Upload your image as profile.jpg in the repo root -->
       <img class="avatar" src="profile.jpg" alt="Gangul Missaka portrait"/>
 
       <div>
@@ -150,7 +189,6 @@
         <div class="tag">Computer Science Student · Aspiring Software Engineer</div>
 
         <div class="ctaRow">
-          <!-- Replace with your real links -->
           <a class="btn primary" href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/" target="_blank" rel="noopener">LinkedIn</a>
           <a class="btn" href="https://github.com/gangulmissaka" target="_blank" rel="noopener">GitHub</a>
           <a class="btn" href="#projects">View Projects</a>
@@ -169,14 +207,15 @@
       <section class="card half" id="about">
         <h2>About Me</h2>
         <div class="muted">
-          I’m a Computer Science student who enjoys building practical projects in software development,
-          networking, and game development. I like clean design, strong fundamentals, and learning by building.
+          I’m currently studying Computer Science and focusing on becoming a strong software engineer.
+          I enjoy learning by building real projects—especially in networking, web development, and Unity.
+          I’m always improving my skills and aiming to work on practical, impactful systems.
         </div>
       </section>
 
       <section class="card half" id="skills">
         <h2>Skills</h2>
-        <div class="muted">Core tools & technologies I use:</div>
+        <div class="muted">Tools & technologies I work with:</div>
         <div class="pillRow" style="margin-top:12px">
           <div class="pill">HTML / CSS</div>
           <div class="pill">Java</div>
@@ -193,7 +232,10 @@
         <div class="project">
           <div>
             <div class="title">Enterprise Network Design (Cisco Packet Tracer)</div>
-            <div class="desc">Multi-site network design with VLANs, routing, DHCP, and testing.</div>
+            <div class="desc">
+              Designed and simulated a multi-site enterprise network for a university assignment.
+              Implemented VLANs, routing, DHCP, and verified connectivity between branches.
+            </div>
           </div>
           <div class="meta">2026 · Networking</div>
         </div>
@@ -201,38 +243,38 @@
         <div class="project">
           <div>
             <div class="title">Unity Roll-a-Ball Game</div>
-            <div class="desc">A beginner-friendly Unity project focusing on movement, collisions, and UI.</div>
+            <div class="desc">
+              Built a Unity mini-game to practice movement, collisions, and UI—following best beginner workflows.
+            </div>
           </div>
           <div class="meta">2026 · Game Dev</div>
         </div>
 
         <div class="project">
           <div>
-            <div class="title">Web Development Projects</div>
-            <div class="desc">Small web builds to practice front-end fundamentals and responsive design.</div>
+            <div class="title">Web Development Practice Builds</div>
+            <div class="desc">
+              Small front-end projects focused on responsive layouts and clean UI structure.
+            </div>
           </div>
           <div class="meta">2026 · Web</div>
         </div>
 
-        <div class="muted2" style="margin-top:12px">
-          Tip: You can add project links later (GitHub repo links / demo links).
-        </div>
       </section>
 
       <section class="card" id="contact">
         <h2>Contact</h2>
         <div class="muted">Want to collaborate or discuss opportunities?</div>
         <div class="ctaRow" style="margin-top:12px">
-          <!-- Replace email with yours -->
           <a class="btn primary" href="mailto:missakabro@gmail.com">Email Me</a>
           <a class="btn" href="https://github.com/gangulmissaka" target="_blank" rel="noopener">GitHub</a>
-          <a class="btn" href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn" href="https://www.linkedin.com/in/missaka-hinguralaarachchi-4b12a1396/" target="_blank" rel="noopener">LinkedIn</a>
         </div>
       </section>
     </div>
 
     <div class="footer">
-      © <span id="yr"></span> Gangul Missaka Hinguralaarachchi · Built with GitHub Pages
+      © <span id="yr"></span> Gangul Missaka · All rights reserved.
     </div>
   </div>
 
