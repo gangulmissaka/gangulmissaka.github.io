@@ -1,23 +1,78 @@
-<main id="main" class="wrap">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Projects | Gangul Missaka</title>
+  <meta name="description" content="Projects by Gangul Missaka Hinguralaarachchi." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="navInner">
+      <a href="index.html" class="brand">
+        <span class="dot"></span> Gangul Missaka
+      </a>
+
+      <nav class="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="skills.html">Skills</a>
+        <a href="projects.html">Projects</a>
+        <a href="education.html">Education</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+    </div>
+
+    <div id="mobileMenu" class="hidden mobileMenu">
+      <div class="card">
+        <div>
+          <a class="btn" href="index.html">Home</a>
+          <a class="btn" href="about.html">About</a>
+          <a class="btn" href="skills.html">Skills</a>
+          <a class="btn" href="projects.html">Projects</a>
+          <a class="btn" href="education.html">Education</a>
+          <a class="btn" href="contact.html">Contact</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
     <div class="card section span12">
       <div class="sectionHeader">
         <h2>Projects</h2>
-        <div class="hint">Coming soon</div>
+        <div class="hint">Short summaries</div>
       </div>
 
       <div class="projectsList">
-        <div class="proj" style="justify-content: center; text-align: center; padding: 50px 20px;">
-          <div>
-            <div class="title" style="font-size: 1.2rem; margin-bottom: 15px;">Projects will be uploaded soon! 🚀</div>
-            <div class="desc" style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
-              This website was recently created. I am currently organizing my work and will be uploading my projects to this section later on. Stay tuned!
-            </div>
-          </div>
+        <div style="text-align:center; padding:40px 20px; color: var(--muted); font-size:16px; line-height:1.8;">
+          <p>
+            This website was recently created.
+          </p>
+
+          <p>
+            I am currently organizing my work and will be uploading my projects to this section later on.
+          </p>
+
+          <p style="font-weight:600;">
+            Stay tuned!
+          </p>
         </div>
       </div>
+
     </div>
 
     <div class="footer">
       © <span id="yr"></span> Gangul Missaka · All rights reserved.
     </div>
   </main>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
