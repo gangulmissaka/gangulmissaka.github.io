@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(taskkill /PID 15196 /F)",
+      "PowerShell(Test-NetConnection *)",
+      "Bash(curl *)"
+    ]
+  }
+}

@@ -1,0 +1,475 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #00f2ff;
+  --accent-glow: rgba(0, 242, 255, 0.5);
+}
+
+@theme {
+  --font-sans: "Geist", "Inter", sans-serif;
+}
+
+/* ── Base ───────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  /* Prevent layout shift from scrollbar appearing */
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Better touch scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Custom Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar      { width: 5px; }
+::-webkit-scrollbar-track{ background: #000; }
+::-webkit-scrollbar-thumb{
+  background:    #111;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background:  var(--accent);
+  box-shadow:  0 0 10px var(--accent-glow);
+}
+
+/* ── Glassmorphism ──────────────────────────────────────────────── */
+.glass-panel {
+  background:          rgba(10, 10, 10, 0.7);
+  backdrop-filter:     blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border:              1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neon-glow   { text-shadow: 0 0 15px var(--accent-glow); }
+.neon-border {
+  box-shadow:  0 0 20px rgba(0,242,255,0.1), inset 0 0 10px rgba(0,242,255,0.05);
+  border-color: rgba(0,242,255,0.2);
+}
+
+/* ── Canvas — 3D sequence only ──────────────────────────────────── */
+/* Only target the sequence canvas, not the particle canvas */
+canvas.sequence-canvas {
+  filter: contrast(1.06) brightness(0.9);
+  image-rendering: -webkit-optimize-contrast; /* Safari */
+  image-rendering: crisp-edges;
+}
+
+/* ── Film Grain ─────────────────────────────────────────────────── */
+.film-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grainShift 0.5s steps(1) infinite;
+  /* Promote to own layer so it never triggers repaints on main content */
+  will-change: background-position;
+}
+
+@keyframes grainShift {
+  0%   { background-position:     0      0;   }
+  25%  { background-position:  -50px  -50px; }
+  50%  { background-position:   50px   50px; }
+  75%  { background-position:  -30px   60px; }
+  100% { background-position:   20px  -40px; }
+}
+
+/* ── Cursor glow (ScrollSequence internal follow-glow) ──────────── */
+.cursor-glow {
+  position:      fixed;
+  width:         380px;
+  height:        380px;
+  border-radius: 50%;
+  background:    radial-gradient(circle, rgba(0,242,255,0.065) 0%, transparent 70%);
+  pointer-events: none;
+  transform:     translate(-50%, -50%);
+  z-index:       5;
+  mix-blend-mode: screen;
+  will-change:   left, top;
+  /* Use transform instead of left/top for smoother motion */
+  transition:    left 0.06s linear, top 0.06s linear;
+}
+
+/* ── Custom cursor: hide native on pointer-fine (desktop) ────────── */
+@media (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+/* ── Touch devices: show native cursor, hide custom UI ────────────── */
+@media (pointer: coarse) {
+  [aria-hidden="true"].fixed {
+    display: none !important;
+  }
+}
+
+/* ── Tech Grid ───────────────────────────────────────────────────── */
+.tech-grid {
+  background-image:
+    linear-gradient(rgba(0, 242, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 242, 255, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ── Text Utilities ──────────────────────────────────────────────── */
+.text-cinematic {
+  letter-spacing: 0.8em;
+  text-shadow:    0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Pause all non-essential animations */
+  .film-grain::after,
+  .cursor-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Let Framer Motion still handle layout — only CSS animations paused */
+  *, *::before, *::after {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior:      auto !important;
+  }
+}
+
+/* ── Mobile Overrides ────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Prevent text from being too small on mobile */
+  .text-cinematic { letter-spacing: 0.3em; }
+
+  /* Scrollbar hidden on mobile — wastes space */
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+}
+
+/* ── Holographic Panel Effect ────────────────────────────────────── */
+.hologram-panel {
+  --h-intensity: 0;
+  --h-pulse: 4s;
+}
+
+.hologram-image-container {
+  opacity: calc(0.5 + (var(--h-intensity) * 0.5));
+  filter: brightness(calc(0.7 + (var(--h-intensity) * 0.8))) contrast(calc(1.1 + (var(--h-intensity) * 0.4)));
+  transition: opacity 0.1s, filter 0.1s;
+}
+
+.hologram-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0.2) 2px,
+    rgba(0, 242, 255, 0.1) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  background-size: 100% 4px;
+  animation: hologram-static 0.5s linear infinite;
+  opacity: calc(0.2 + (var(--h-intensity) * 0.6));
+}
+@keyframes hologram-static {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+.hologram-sweep {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 45%,
+    rgba(0, 242, 255, 0.3) 50%,
+    transparent 55%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  animation: hologram-sweep-anim 4s linear infinite;
+  opacity: calc(0.3 + (var(--h-intensity) * 0.7));
+}
+@keyframes hologram-sweep-anim {
+  0% { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+
+.hologram-edge {
+  box-shadow: 
+    inset 0 0 calc(10px + var(--h-intensity) * 35px) rgba(0, 242, 255, calc(0.1 + var(--h-intensity) * 0.4)),
+    0 0 calc(5px + var(--h-intensity) * 45px) rgba(0, 242, 255, calc(0.1 + var(--h-intensity) * 0.5));
+  border-color: rgba(0, 242, 255, calc(0.1 + var(--h-intensity) * 0.6));
+}
+
+.animate-pulse-glow {
+  animation: hologram-edge-pulse var(--h-pulse, 4s) ease-in-out infinite alternate;
+}
+@keyframes hologram-edge-pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; filter: brightness(1.4); }
+}
+
+.hologram-text {
+  --h-intensity: 0;
+  color: rgba(0, 242, 255, calc(0.3 + (var(--h-intensity) * 0.6)));
+  text-shadow: 0 0 calc(var(--h-intensity) * 20px) rgba(0, 242, 255, calc(0.3 + (var(--h-intensity) * 0.7)));
+}
+
+/* ── Glitch Text ──────────────────────────────────────────────────── */
+.glitch-text {
+  position: relative;
+}
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+.glitch-text::before {
+  clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
+  color: rgba(0, 242, 255, 0.9);
+  opacity: 0;
+  animation: glitch-top 8s steps(1) infinite;
+}
+.glitch-text::after {
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  color: rgba(255, 0, 220, 0.9);
+  opacity: 0;
+  animation: glitch-bot 8s steps(1) infinite;
+}
+@keyframes glitch-top {
+  0%, 91%, 100% { opacity: 0; transform: none; }
+  92% { opacity: 0.9; transform: translateX(-5px) skewX(-2deg); }
+  93% { opacity: 0; }
+  94% { opacity: 0.7; transform: translateX(4px); }
+  95% { opacity: 0; }
+}
+@keyframes glitch-bot {
+  0%, 91%, 100% { opacity: 0; transform: none; }
+  92% { opacity: 0.9; transform: translateX(5px) skewX(2deg); }
+  93% { opacity: 0; }
+  94% { opacity: 0.7; transform: translateX(-3px); }
+  95% { opacity: 0; }
+}
+
+/* ── HUD Corner Bracket (top-left only, ::before) ────────────────── */
+.hud-corner {
+  position: relative;
+}
+.hud-corner::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 12px;
+  width: 16px; height: 16px;
+  border-top: 1px solid rgba(0, 242, 255, 0.4);
+  border-left: 1px solid rgba(0, 242, 255, 0.4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+.hud-corner:hover::before { opacity: 1; }
+
+/* ── Scan Sweep on Hover (::after) ──────────────────────────────── */
+.scan-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+.scan-on-hover::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.5), transparent);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.scan-on-hover:hover::after {
+  opacity: 1;
+  animation: scan-sweep 0.9s ease-out forwards;
+}
+@keyframes scan-sweep {
+  0%   { top: -2px;  opacity: 1; }
+  80%  { opacity: 0.8; }
+  100% { top: 105%;  opacity: 0; }
+}
+
+/* ── Animated skill bar ──────────────────────────────────────────── */
+@keyframes skill-bar-in {
+  from { width: 0%; }
+  to   { width: var(--sw, 80%); }
+}
+.skill-bar-fill {
+  animation: skill-bar-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Neon border pulse (reusable) ───────────────────────────────── */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,242,255,0.15); }
+  50%       { box-shadow: 0 0 20px rgba(0,242,255,0.35), 0 0 40px rgba(0,242,255,0.1); }
+}
+.neon-pulse-border {
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+/* ── Aurora background blobs ─────────────────────────────────────── */
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+.aurora-cyan {
+  width: 700px; height: 700px;
+  top: -200px; right: -200px;
+  background: radial-gradient(circle, rgba(0,242,255,0.09) 0%, transparent 70%);
+  animation: aurora-1 22s ease-in-out infinite;
+}
+.aurora-purple {
+  width: 600px; height: 600px;
+  top: 40%; left: -180px;
+  background: radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%);
+  animation: aurora-2 28s ease-in-out infinite;
+}
+.aurora-blue {
+  width: 800px; height: 800px;
+  bottom: -300px; left: 20%;
+  background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
+  animation: aurora-3 35s ease-in-out infinite;
+}
+.aurora-teal {
+  width: 500px; height: 500px;
+  top: 60%; right: 5%;
+  background: radial-gradient(circle, rgba(20,184,166,0.06) 0%, transparent 70%);
+  animation: aurora-4 20s ease-in-out infinite;
+}
+@keyframes aurora-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-80px, 60px) scale(1.1); }
+  66%  { transform: translate(60px, -40px) scale(0.9); }
+}
+@keyframes aurora-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(120px, -80px) scale(1.15); }
+  70%  { transform: translate(-60px, 100px) scale(0.88); }
+}
+@keyframes aurora-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  30%  { transform: translate(-100px, -50px) scale(1.05); }
+  60%  { transform: translate(80px, 40px) scale(0.95); }
+}
+@keyframes aurora-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-80px, -60px) scale(1.1); }
+}
+
+/* ── Animated neon border cycle (email card) ─────────────────────── */
+@keyframes neon-border-cycle {
+  0%, 100% {
+    border-color: rgba(0,242,255,0.3);
+    box-shadow: 0 0 20px rgba(0,242,255,0.08), inset 0 0 20px rgba(0,242,255,0.03);
+  }
+  33% {
+    border-color: rgba(139,92,246,0.35);
+    box-shadow: 0 0 20px rgba(139,92,246,0.1), inset 0 0 20px rgba(139,92,246,0.04);
+  }
+  66% {
+    border-color: rgba(0,242,255,0.5);
+    box-shadow: 0 0 30px rgba(0,242,255,0.15), inset 0 0 30px rgba(0,242,255,0.06);
+  }
+}
+.animate-neon-border {
+  animation: neon-border-cycle 5s ease-in-out infinite;
+}
+
+/* ── Status ping ring ────────────────────────────────────────────── */
+.status-ping {
+  position: relative;
+  display: inline-block;
+}
+.status-ping::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, 0.35);
+  animation: ping-ring 1.8s ease-out infinite;
+}
+@keyframes ping-ring {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* ── Tech grid pulse ─────────────────────────────────────────────── */
+@keyframes grid-pulse {
+  0%, 100% {
+    background-image:
+      linear-gradient(rgba(0,242,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,242,255,0.04) 1px, transparent 1px);
+  }
+  50% {
+    background-image:
+      linear-gradient(rgba(0,242,255,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,242,255,0.07) 1px, transparent 1px);
+  }
+}
+.tech-grid {
+  animation: grid-pulse 6s ease-in-out infinite;
+}
+
+/* ── Shimmer sweep (skill card icon bg on hover) ─────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.shimmer-on-hover {
+  background-size: 200% 100%;
+  transition: background 0.3s;
+}
+.shimmer-on-hover:hover {
+  background-image: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(0,242,255,0.15) 50%,
+    transparent 60%
+  );
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* ── Float (gentle hover lift alternative) ───────────────────────── */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+.float-slow {
+  animation: gentle-float 6s ease-in-out infinite;
+}
+
+/* ── Neon flicker (category title on card hover) ─────────────────── */
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+      0 0 6px rgba(0,242,255,0.8),
+      0 0 16px rgba(0,242,255,0.5),
+      0 0 35px rgba(0,242,255,0.25);
+  }
+  20%, 24%, 55% { text-shadow: none; opacity: 0.85; }
+}
+.group:hover .flicker-on-group {
+  animation: neon-flicker 0.6s ease-in-out forwards;
+}
