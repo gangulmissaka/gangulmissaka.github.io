@@ -10,7 +10,7 @@ import TextScramble from '@/components/TextScramble';
 import { ExternalLink, Code, Layers, Shield, Palette, MapPin } from 'lucide-react';
 import { GitHubIcon, LinkedInIcon } from '@/components/icons';
 
-// ── Animation helpers ─────────────────────────────────────────────────────────
+// Animation helpers
 const hidden  = { opacity: 0, y: 40 };
 const visible = (delay = 0) => ({
   opacity: 1,
@@ -48,7 +48,7 @@ function SectionTag({ label, delay = 0 }: { label: string; delay?: number }) {
   );
 }
 
-// ── Skill categories ──────────────────────────────────────────────────────────
+// Skill categories
 const SKILL_CATEGORIES = [
   {
     icon:       <Code   className="w-7 h-7 text-cyan-400" />,
@@ -108,26 +108,22 @@ const SKILL_CATEGORIES = [
   },
 ];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// Page
 export default function Home() {
   return (
     <main className="bg-black text-white selection:bg-cyan-500/30 font-sans">
 
-      {/* ══════════════════════════════════════════════════════
-          CINEMATIC INTRO
-      ══════════════════════════════════════════════════════ */}
+      {/* Cinematic intro */}
       <ScrollSequence />
 
-      {/* ══════════════════════════════════════════════════════
-          MAIN CONTENT
-      ══════════════════════════════════════════════════════ */}
+      {/* Main content */}
       <div className="relative z-10 bg-black">
         <div className="h-24 bg-gradient-to-b from-black to-transparent -mt-24 relative z-10" />
 
         <div className="tech-grid">
           <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-24 pt-24 pb-64 space-y-64">
 
-            {/* ── IDENTITY ──────────────────────────────────────────────── */}
+            {/* IDENTITY */}
             <section id="identity" className="border-b border-white/5 pb-24">
               <Reveal>
                 <SectionTag label="Developer Profile" />
@@ -177,7 +173,7 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── METHODOLOGY ───────────────────────────────────────────── */}
+            {/* METHODOLOGY */}
             <section id="methodology" className="space-y-20">
               <Reveal>
                 <SectionTag label="Approach" />
@@ -225,7 +221,7 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── SKILLS ────────────────────────────────────────────────── */}
+            {/* SKILLS */}
             <section className="space-y-20" id="skills">
               <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-8 border-b border-white/5">
                 <Reveal>
@@ -290,7 +286,7 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── EDUCATION & CONTACT ───────────────────────────────────── */}
+            {/* EDUCATION & CONTACT */}
             <section className="grid lg:grid-cols-2 gap-24 lg:gap-32" id="contact">
 
               {/* Education */}

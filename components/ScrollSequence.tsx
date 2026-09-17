@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// Constants
 const FRAME_COUNT = 120;
 const RING_R      = 45;
 const RING_CIRC   = 2 * Math.PI * RING_R;
@@ -13,7 +13,7 @@ const RING_CIRC   = 2 * Math.PI * RING_R;
 
 
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// Main Component
 export default function ScrollSequence() {
   const canvasRef    = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,7 +45,7 @@ export default function ScrollSequence() {
     return () => clearTimeout(t);
   }, [isLoaded]);
 
-  // ─── Scroll ─────────────────────────────────────────────────────────────
+  // Scroll
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -67,7 +67,7 @@ export default function ScrollSequence() {
     { text: 'AI & DATA DRIVEN ARCHITECTURE',   s: 0.52, e: 0.70 },
   ];
 
-  // ─── Pre-load ────────────────────────────────────────────────────────────
+  // Pre-load
   useEffect(() => {
     let loaded = 0;
     imagesRef.current = new Array(FRAME_COUNT);
@@ -86,7 +86,7 @@ export default function ScrollSequence() {
     }
   }, []);
 
-  // ─── Canvas draw (DPR-aware cover-fit) ────────────────────────────────────────
+  // Canvas draw (DPR-aware cover-fit)
   const drawFrame = useCallback((rawIdx: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -107,7 +107,7 @@ export default function ScrollSequence() {
     ctx.drawImage(img, dx, dy, img.naturalWidth * scale, img.naturalHeight * scale);
   }, []);
 
-  // ─── RAF loop ────────────────────────────────────────────────────────────
+  // RAF loop
   useEffect(() => {
     if (!isLoaded) return;
     const loop = () => {
@@ -118,7 +118,7 @@ export default function ScrollSequence() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [isLoaded, drawFrame, frameIndex]);
 
-  // ─── Resize + orientation change ─────────────────────────────────────────
+  // Resize + orientation change
   useEffect(() => {
     const resize = () => {
       if (!canvasRef.current) return;
@@ -151,7 +151,7 @@ export default function ScrollSequence() {
         style={{ opacity: sectionFade }}
         className="sticky top-0 h-screen w-full overflow-hidden"
       >
-        {/* ── Luxury Loading Screen ───────────────────────────────── */}
+        {/* Luxury Loading Screen */}
         <AnimatePresence>
           {!isLoaded && (
             <motion.div
@@ -189,7 +189,7 @@ export default function ScrollSequence() {
           )}
         </AnimatePresence>
 
-        {/* ── 3D Canvas (zoom-out entrance) ───────────────────────── */}
+        {/* 3D Canvas (zoom-out entrance) */}
         <motion.canvas
           ref={canvasRef}
           initial={{ opacity: 0, scale: 1.08 }}
@@ -198,7 +198,7 @@ export default function ScrollSequence() {
           className="absolute inset-0 h-full w-full sequence-canvas"
         />
 
-        {/* ── Permanent edge vignettes ─────────────────────────────── */}
+        {/* Permanent edge vignettes */}
         {/* Bottom vignette — darkens the bright laptop-glow zone where text lives */}
         <div
           className="absolute inset-x-0 bottom-0 h-[42%] pointer-events-none z-10"
@@ -217,7 +217,7 @@ export default function ScrollSequence() {
         />
 
 
-        {/* ── Bottom-center identity text ─────────────────────────── */}
+        {/* Bottom-center identity text */}
         <AnimatePresence>
           {heroVisible && (
             <motion.div
@@ -283,7 +283,7 @@ export default function ScrollSequence() {
           )}
         </AnimatePresence>
 
-        {/* ── Mid-scroll cinematic phrases ────────────────────────── */}
+        {/* Mid-scroll cinematic phrases */}
         {PHRASES.map((phrase, i) => {
           const mid = (phrase.s + phrase.e) / 2;
           const opacity = useTransform(smooth, [phrase.s, mid - 0.02, mid + 0.02, phrase.e], [0, 1, 1, 0]);
@@ -305,7 +305,7 @@ export default function ScrollSequence() {
           );
         })}
 
-        {/* ── Pulsating glow halo at frame 120 ────────────────────── */}
+        {/* Pulsating glow halo at frame 120 */}
         <motion.div
           style={{ opacity: glowOpacity }}
           className="absolute inset-0 pointer-events-none"
@@ -319,7 +319,7 @@ export default function ScrollSequence() {
           />
         </motion.div>
 
-        {/* ── "SCROLL DOWN FOR MORE" CTA at frame 120 ─────────────── */}
+        {/* "SCROLL DOWN FOR MORE" CTA at frame 120 */}
         <motion.div
           style={{ opacity: ctaOpacity }}
           className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-4 pointer-events-none z-20"

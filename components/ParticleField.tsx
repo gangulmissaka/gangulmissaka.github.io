@@ -2,17 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-/**
- * Sparse cursor-repel particle field — desktop only.
- *
- * Improvements:
- * - Touch guard: skips render on pointer-coarse devices
- * - Device pixel ratio: crisp on retina / HiDPI screens
- * - Throttled resize with debounce — no jank on window resize
- * - Optimised per-frame clear: only dirty region cleared
- * - willChange: transform on the canvas for compositor layer
- * - mouseleave guard: particles gracefully spring back when cursor leaves
- */
+// Cursor-repel particle field, desktop only
 
 const PARTICLE_COUNT = 40;
 const REPEL_RADIUS   = 90;
@@ -33,7 +23,7 @@ export default function ParticleField() {
   const rafRef    = useRef<number>(0);
 
   useEffect(() => {
-    // ── Touch guard ─────────────────────────────────────────────────
+    // Touch guard
     if (window.matchMedia('(pointer: coarse)').matches) return;
 
     const canvas = canvasRef.current;
@@ -53,7 +43,7 @@ export default function ParticleField() {
       });
     };
 
-    // ── Resize with debounce ─────────────────────────────────────────
+    // Resize with debounce
     let resizeTimer: ReturnType<typeof setTimeout>;
     const resize = () => {
       clearTimeout(resizeTimer);
@@ -82,13 +72,13 @@ export default function ParticleField() {
 
     window.addEventListener('resize', resize, { passive: true });
 
-    // ── Mouse listeners ──────────────────────────────────────────────
+    // Mouse listeners
     const onMove  = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
     const onLeave = () => { mouse.x = -999; mouse.y = -999; };
     window.addEventListener('mousemove',  onMove,  { passive: true });
     window.addEventListener('mouseleave', onLeave, { passive: true });
 
-    // ── RAF draw loop ─────────────────────────────────────────────────
+    // RAF draw loop
     const draw = () => {
       const W = canvas.width  / dpr;
       const H = canvas.height / dpr;

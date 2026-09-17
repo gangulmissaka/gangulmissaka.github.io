@@ -2,16 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-/**
- * Premium sci-fi targeting reticle — desktop only.
- *
- * Key improvements vs previous version:
- * - Zero React state: hover detection is pure DOM → no re-render on every hover
- * - RAF-driven lerp loop with double-buffered transforms (translate3d / GPU layer)
- * - Touch guard: returns null on pointer-coarse / touch-only devices
- * - Single passive event listener — never blocks scroll
- * - `will-change: transform` on both layers for compositor promotion
- */
+// Custom cursor reticle, desktop only
 export default function CustomCursor() {
   const dotRef  = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -25,19 +16,19 @@ export default function CustomCursor() {
   const mounted = useRef(false);
 
   useEffect(() => {
-    // ── Touch guard ─────────────────────────────────────────────────
+    // Touch guard
     // Hide on touch-primary devices (phones/tablets). matchMedia is
     // more reliable than navigator.maxTouchPoints for this purpose.
     if (window.matchMedia('(pointer: coarse)').matches) return;
 
     mounted.current = true;
 
-    // ── Mouse tracking ──────────────────────────────────────────────
+    // Mouse tracking
     const onMove = (e: MouseEvent) => {
       mouse.current = { x: e.clientX, y: e.clientY };
     };
 
-    // ── Hover detection (zero re-renders) ───────────────────────────
+    // Hover detection (zero re-renders)
     const INTERACTIVE = 'a, button, [role="button"], input, textarea, label, select';
     const onOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
@@ -47,7 +38,7 @@ export default function CustomCursor() {
     document.addEventListener('mousemove', onMove, { passive: true });
     document.addEventListener('mouseover',  onOver, { passive: true });
 
-    // ── RAF lerp loop ────────────────────────────────────────────────
+    // RAF lerp loop
     // Separate lerp factors:  ring trails for elegance, dot is instant
     const RING_LERP = 0.095; // slower trail = smoother feel
 
@@ -101,7 +92,7 @@ export default function CustomCursor() {
     };
   }, []);
 
-  // ── On touch devices return nothing ─────────────────────────────────
+  // On touch devices return nothing
   // (server-safe: we check in useEffect, but hide by default via CSS)
   return (
     <>
