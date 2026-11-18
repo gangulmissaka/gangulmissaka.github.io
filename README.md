@@ -1,23 +1,15 @@
-# gangulmissaka.github.io
+﻿# Gangul Missaka — 3D Portfolio
 
-My personal portfolio site, built with Next.js and Tailwind CSS.
+An interactive 3D open-world portfolio: drive a 1939 classic car around a valley and find projects, skills, about and contact by driving into glowing rings. Phones get a virtual joystick and a third-person chase camera.
 
-## Stack
+Live: https://gangulmissaka.github.io
 
-- Next.js (App Router, static export)
-- TypeScript
-- Tailwind CSS
-- Framer Motion for animations
+Built with Next.js 14, TypeScript, Three.js and cannon-es. See `CLAUDE.md` and `what_did_so_far.md` for the architecture and feature log.
 
-## Running locally
-
-```bash
-npm install
-npm run dev
+```
+npm ci
+npm run dev      # http://localhost:3000
+npm run build    # static export to ./out (deployed by GitHub Actions)
 ```
 
-Then open [http://localhost:3000](http://localhost:3000).
-
-## Deployment
-
-Pushes to `main` are built and deployed automatically to GitHub Pages via the workflow in `.github/workflows/deploy.yml`.
+3D models are CC BY 4.0 (credits are in the in-site Options panel). The previous version of this site is preserved in this repo's git history (commit `0676d05`).
