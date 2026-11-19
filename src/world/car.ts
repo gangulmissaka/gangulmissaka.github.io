@@ -178,6 +178,8 @@ export function createCar(scene: THREE.Scene, physics: Physics, model: THREE.Gro
       void main() {
         float d = length(gl_PointCoord - 0.5);
         gl_FragColor = vec4(vColor, smoothstep(0.5, 0.0, d) * vAlpha);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const dust = new THREE.Points(dustGeo, dustMat);

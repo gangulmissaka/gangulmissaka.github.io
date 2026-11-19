@@ -252,8 +252,9 @@ export function createGrassField(scene: THREE.Scene, roads: RoadPath[], noise: T
   let last: { lx: number; lz: number; rx: number; rz: number } | null = null;
 
   return {
-    setQuality(high: boolean) {
-      geo.instanceCount = high ? full : Math.floor(full * 0.45);
+    /** Fraction (0..1) of the blades to draw; cells are shuffled so any prefix is evenly spread. */
+    setDensity(f: number) {
+      geo.instanceCount = Math.max(1, Math.floor(full * f));
     },
     /**
      * @param center  patch centre (camera focus)

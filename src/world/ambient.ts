@@ -69,6 +69,8 @@ export function createAmbient(scene: THREE.Scene, roadDistance: (x: number, z: n
       void main() {
         float a = texture2D(uMap, gl_PointCoord).a * vAlpha;
         gl_FragColor = vec4(vec3(1.0, 0.93, 0.74) * 0.95, a * 0.85);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const motes = new THREE.Points(moteGeo, moteMat);
@@ -122,6 +124,8 @@ export function createAmbient(scene: THREE.Scene, roadDistance: (x: number, z: n
         float a = texture2D(uMap, gl_PointCoord).a;
         float g = vGlow * (1.0 + uNight * 1.6);
         gl_FragColor = vec4(vec3(0.85, 1.0, 0.45) * (0.6 + g), a * min(1.0, g));
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const fireflies = new THREE.Points(ffGeo, ffMat);
@@ -189,6 +193,8 @@ export function createAmbient(scene: THREE.Scene, roadDistance: (x: number, z: n
         float a = smoothstep(tail, tail + 0.25, vU) * (1.0 - smoothstep(head - 0.05, head, vU));
         a *= sin(vLife * 3.14159);
         gl_FragColor = vec4(vec3(1.0), a * 0.32);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const streaks = new THREE.Mesh(base, streakMat);

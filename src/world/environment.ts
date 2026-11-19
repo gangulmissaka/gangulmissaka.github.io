@@ -12,7 +12,7 @@ export const FOG_COLOR = new THREE.Color(0xa9bcc6);
 
 export function createRenderer(container: HTMLElement) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', stencil: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // the quality governor takes over after the first frames
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -149,6 +149,8 @@ function createStars() {
         float d = length(gl_PointCoord - 0.5);
         float a = smoothstep(0.5, 0.0, d) * vA * uAlpha;
         gl_FragColor = vec4(vec3(0.85, 0.9, 1.0) * a, a);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const pts = new THREE.Points(geo, mat);
@@ -369,6 +371,8 @@ const SanitizeShader = {
   `,
 };
 
+export type PostMode = 'full' | 'lite' | 'off';
+
 export function createComposer(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera) {
   const size = renderer.getSize(new THREE.Vector2());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
@@ -383,15 +387,43 @@ export function createComposer(renderer: THREE.WebGLRenderer, scene: THREE.Scene
   const finish = new ShaderPass(FinishShader);
   composer.addPass(finish);
   composer.setSize(size.x, size.y);
+
+  let mode: PostMode = 'full';
+  let cssW = size.x;
+  let cssH = size.y;
+  const layout = () => {
+    composer.setPixelRatio(renderer.getPixelRatio());
+    composer.setSize(cssW, cssH);
+    const k = mode === 'lite' ? 0.5 : 1;
+    bloom.setSize(cssW * k, cssH * k);
+  };
+  const setSamples = (n: number) => {
+    for (const t of [composer.renderTarget1, composer.renderTarget2]) {
+      if (t.samples !== n) {
+        t.samples = n;
+        t.dispose(); // re-created with the new sample count on next use
+      }
+    }
+  };
+
   return {
     composer,
-    /** Low quality drops bloom (the most expensive pass). */
-    setQuality: (high: boolean) => {
-      bloom.enabled = high;
+    setMode: (m: PostMode) => {
+      mode = m;
+      bloom.enabled = m !== 'off';
+      setSamples(m === 'full' ? 4 : m === 'lite' ? 2 : 0);
+      layout();
     },
+    /** Call after the renderer's size or pixel ratio changed. */
     setSize: (w: number, h: number) => {
-      composer.setSize(w, h);
-      bloom.setSize(w, h);
+      cssW = w;
+      cssH = h;
+      layout();
+    },
+    /** 'off' skips the whole chain (no float targets, no MSAA, no bloom): one plain render to the screen. */
+    render: (dt: number) => {
+      if (mode === 'off') renderer.render(scene, camera);
+      else composer.render(dt);
     },
     tick: (t: number) => {
       finish.uniforms.uTime.value = t % 100;

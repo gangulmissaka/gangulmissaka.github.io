@@ -64,6 +64,8 @@ function glowTexture() {
 export function createDancers(scene: THREE.Scene, physics: Physics) {
   const dancers: Dancer[] = [];
   let weight = 0; // 0 = standing, 1 = dancing (eased)
+  let lowDetail = false;
+  let animAcc = 0;
   let disposed = false;
 
   // Colliders go in straight away so the car can't drive through a spot while the model loads.
@@ -167,8 +169,16 @@ export function createDancers(scene: THREE.Scene, physics: Physics) {
 
   return {
     /** `music` is true while the radio is playing a song. */
-    update(dt: number, elapsed: number, music: boolean, night = 0) {
+    /** Low-end mode: animate skeletons at ~20 Hz instead of every frame. */
+    setLowDetail(v: boolean) {
+      lowDetail = v;
+    },
+    update(dt: number, elapsed: number, music: boolean, night = 0, focus?: THREE.Vector3) {
       if (!dancers.length) return;
+      animAcc += dt;
+      const animate = !lowDetail || animAcc >= 1 / 20;
+      const animDt = animAcc;
+      if (animate) animAcc = 0;
       const target = music ? 1 : 0;
       weight += Math.sign(target - weight) * Math.min(Math.abs(target - weight), dt / BLEND);
       const w = weight * weight * (3 - 2 * weight);
@@ -176,12 +186,14 @@ export function createDancers(scene: THREE.Scene, physics: Physics) {
         d.dance.setEffectiveWeight(w);
         d.pose.setEffectiveWeight(1 - w);
         // Freeze the routine (rather than tick it invisibly) while standing still.
-        d.mixer.update(weight > 0 ? dt : 0);
+        const near = !focus || d.root.position.distanceToSquared(focus) < 150 * 150;
+        d.root.visible = near; // the skinned meshes are never frustum-culled, so skip far ones by hand
+        if (animate && near) d.mixer.update(weight > 0 ? animDt : 0);
         d.glowMat.opacity = w * (0.5 + Math.sin(elapsed * 4.2 + i * 1.3) * 0.18);
-        d.glow.visible = w > 0.01;
+        d.glow.visible = w > 0.01 && near;
         d.glow.scale.setScalar(1 + night * 0.5);
         d.beamMat.opacity = w * (0.12 + night * 0.28) * (0.85 + Math.sin(elapsed * 2.7 + i) * 0.15);
-        d.beam.visible = w > 0.01;
+        d.beam.visible = w > 0.01 && near;
       });
       const selfLight = night * (0.12 + w * 0.25);
       bodyMats.forEach((m) => (m.emissiveIntensity = selfLight));

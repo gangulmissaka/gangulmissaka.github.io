@@ -344,6 +344,8 @@ export function createPond(scene: THREE.Scene, physics: Physics, noise: THREE.Te
       void main() {
         float d = length(gl_PointCoord - 0.5);
         gl_FragColor = vec4(vec3(0.86, 0.93, 0.96), smoothstep(0.5, 0.1, d) * vA);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`,
   });
   const spray = new THREE.Points(sprayGeo, sprayMat);

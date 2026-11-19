@@ -9,10 +9,14 @@ import {
 import { MODEL_CREDITS, bakeTopDown, loadModels } from '@/world/assets';
 import { createComposer, createEnvironment, createRenderer, FOG_COLOR, TIMES_OF_DAY, type TimeOfDay } from '@/world/environment';
 import {
+  QUALITY_MODES, TIERS, TIER_NAMES, createGovernor, detectStartTier, modeToTier, readSavedMode, saveMode,
+  type GovernorState, type QualityMode,
+} from '@/world/perf';
+import {
   createForestRing, createGrass, createGround, createRoads, makeNoiseTexture, makeRoadDistance, sampleRoads,
 } from '@/world/terrain';
 import {
-  BODY_KIND, createCollectibles, createPhysics, createPlayground, createStations, placeLandmarks, type DynamicProp,
+  BODY_KIND, canvasTexture, createCollectibles, createPhysics, createPlayground, createStations, placeLandmarks, type DynamicProp,
 } from '@/world/props';
 import { createContent, type Interactive } from '@/world/content';
 import { CAR, createCar } from '@/world/car';
@@ -102,7 +106,8 @@ export default function CyberWorld() {
   const [cameraMode, setCameraMode] = useState<CameraMode>('follow');
   const [engineOn, setEngineOn] = useState(true);
   const [muted, setMuted] = useState(false);
-  const [highQuality, setHighQuality] = useState(true);
+  const [qualityMode, setQualityModeState] = useState<QualityMode>('auto');
+  const [activeTier, setActiveTier] = useState(2);
   const [prompt, setPrompt] = useState<Prompt>(null);
   const [card, setCard] = useState<Card>(null);
   const [showcase, setShowcase] = useState<number | null>(null);
@@ -141,7 +146,8 @@ export default function CyberWorld() {
     paused: false,
     yaw: 0,
     yawTarget: 0,
-    quality: true,
+    qualityMode: 'auto' as QualityMode,
+    qualityDirty: true,
     unlocked: new Set<string>(),
     honks: 0,
     openedProjects: new Set<string>(),
@@ -228,10 +234,11 @@ export default function CyberWorld() {
 
   const toggleMute = useCallback(() => setMuted(sound.toggleMute()), []);
 
-  const toggleQuality = useCallback(() => {
-    const q = !live.current.quality;
-    live.current.quality = q;
-    setHighQuality(q);
+  const setQuality = useCallback((m: QualityMode) => {
+    live.current.qualityMode = m;
+    live.current.qualityDirty = true;
+    setQualityModeState(m);
+    saveMode(m);
   }, []);
 
   const openPanel = useCallback((p: Panel) => {
@@ -483,7 +490,20 @@ export default function CyberWorld() {
     const env = createEnvironment(scene, renderer);
     const post = createComposer(renderer, scene, camera);
     const physics = createPhysics();
-    const basePixelRatio = renderer.getPixelRatio();
+
+    // Adaptive quality: start from what the device looks capable of, then follow the measured frame time.
+    const savedMode = readSavedMode();
+    live.current.qualityMode = savedMode;
+    setQualityModeState(savedMode);
+    let pendingGov: GovernorState | null = null;
+    const gov = createGovernor({
+      startTier: detectStartTier(),
+      dpr: window.devicePixelRatio || 1,
+      onChange: (s) => {
+        pendingGov = s;
+      },
+    });
+    gov.setMode(savedMode); // also queues the first state
 
     const onResize = () => {
       const w = container.clientWidth;
@@ -629,6 +649,26 @@ export default function CyberWorld() {
         setTotalCollectibles(collectibles.length);
         const car = createCar(scene, physics, models.car);
         car.setPixelRatio(renderer.getPixelRatio());
+
+        // Low graphics has no real shadows, so give the car a soft contact shadow instead (one cheap quad).
+        const blobTex = canvasTexture(64, 64, (ctx) => {
+          const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 31);
+          g.addColorStop(0, 'rgba(0,0,0,0.62)');
+          g.addColorStop(0.55, 'rgba(0,0,0,0.3)');
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, 64, 64);
+        });
+        const blob = new THREE.Group();
+        const blobMesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(2.6, 5),
+          new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+        );
+        blobMesh.rotation.x = -Math.PI / 2;
+        blobMesh.renderOrder = 1;
+        blob.add(blobMesh);
+        blob.visible = false;
+        scene.add(blob);
 
         // Night lighting: soft coloured pools of light at every stop (off by day).
         const nightLights = [
@@ -893,7 +933,21 @@ export default function CyberWorld() {
         let checkTimer = 0;
         let elapsed = 0;
         let distance = 0;
-        let quality = true;
+        const vignetteEl = document.createElement('div');
+        vignetteEl.style.cssText =
+          'position:absolute;inset:0;display:none;pointer-events:none;background:radial-gradient(ellipse at center,rgba(8,10,14,0) 45%,rgba(8,10,14,0.55) 100%)';
+        container.appendChild(vignetteEl);
+        let appliedTier = -1;
+        let curTier = TIERS[2];
+        let shadowFrame = 0;
+        let fpsTimer = 0;
+        // ?fps shows a small tier / frame-rate readout (handy for tuning on a real device)
+        let fpsEl: HTMLDivElement | null = null;
+        if (new URLSearchParams(window.location.search).has('fps')) {
+          fpsEl = document.createElement('div');
+          fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;font:600 11px monospace;color:#fff;background:rgba(0,0,0,.6);padding:3px 7px;border-radius:6px;pointer-events:none';
+          container.appendChild(fpsEl);
+        }
         let jumpLift = 0; // seconds during which the car may rise freely after a jump
         let sink = 0;
         let shownTime: TimeOfDay = 'day';
@@ -943,22 +997,52 @@ export default function CyberWorld() {
 
         const tick = () => {
           raf = requestAnimationFrame(tick);
-          const dt = Math.min(clock.getDelta(), 1 / 20);
+          const rawDt = clock.getDelta();
+          const dt = Math.min(rawDt, 1 / 20);
           elapsed += dt;
           const L = live.current;
           const A = actions.current;
 
-          // Quality switch
-          if (L.quality !== quality) {
-            quality = L.quality;
-            renderer.setPixelRatio(quality ? basePixelRatio : 1);
-            onResize();
-            env.sun.castShadow = quality;
-            post.setQuality(quality);
-            grassField.setQuality(quality);
-            ambient.setPixelRatio(renderer.getPixelRatio());
-            car.setPixelRatio(renderer.getPixelRatio());
-            pond.setPixelRatio(renderer.getPixelRatio());
+          // Adaptive quality: manual mode changes, then the frame-time governor
+          if (L.qualityDirty) {
+            L.qualityDirty = false;
+            gov.setMode(L.qualityMode);
+          }
+          if (L.started) gov.frame(rawDt);
+          if (pendingGov) {
+            const s: GovernorState = pendingGov;
+            pendingGov = null;
+            if (Math.abs(s.pixelRatio - renderer.getPixelRatio()) > 0.001) {
+              renderer.setPixelRatio(s.pixelRatio);
+              onResize();
+              ambient.setPixelRatio(s.pixelRatio);
+              car.setPixelRatio(s.pixelRatio);
+              pond.setPixelRatio(s.pixelRatio);
+            }
+            if (s.tier !== appliedTier) {
+              appliedTier = s.tier;
+              curTier = TIERS[s.tier];
+              post.setMode(curTier.post);
+              // Without the post chain there is no vignette grade: a CSS gradient is a nearly free stand-in.
+              vignetteEl.style.display = curTier.post === 'off' ? 'block' : 'none';
+              const sh = env.sun.shadow;
+              env.sun.castShadow = curTier.shadows;
+              if (sh.mapSize.x !== curTier.shadowMapSize) {
+                sh.mapSize.set(curTier.shadowMapSize, curTier.shadowMapSize);
+                sh.map?.dispose();
+                sh.map = null;
+              }
+              renderer.shadowMap.autoUpdate = curTier.shadowEvery === 1;
+              renderer.shadowMap.needsUpdate = true;
+              grassField.setDensity(curTier.grass);
+              dancers.setLowDetail(curTier.lowDetailAnim);
+              setActiveTier(s.tier);
+            }
+          }
+          if (!renderer.shadowMap.autoUpdate && ++shadowFrame % curTier.shadowEvery === 0) renderer.shadowMap.needsUpdate = true;
+          if (fpsEl && (fpsTimer -= rawDt) <= 0) {
+            fpsTimer = 0.5;
+            fpsEl.textContent = `${TIER_NAMES[appliedTier]} | ${Math.round(1000 / Math.max(1, gov.avgMs))} fps | ${gov.avgMs.toFixed(1)} ms | x${renderer.getPixelRatio().toFixed(2)}${gov.enabled ? ' auto' : ''}`;
           }
 
           // Time of day
@@ -1071,6 +1155,11 @@ export default function CyberWorld() {
 
           // What the tyres are rolling on
           const cp = car.root.position;
+          blob.visible = !curTier.shadows && cp.y < 0.7 && !car.state.airborne;
+          if (blob.visible) {
+            blob.position.set(cp.x, 0.04, cp.z);
+            blob.rotation.y = car.state.heading;
+          }
           let surface: Surface = 'grass';
           if (car.state.airborne) surface = 'air';
           else if (cp.y > 0.15 && RAMPS.some((r) => Math.hypot(cp.x - r.x, cp.z - r.z) < r.len * 0.62)) surface = 'wood';
@@ -1083,7 +1172,7 @@ export default function CyberWorld() {
           if (nearRamp) jumpLift = 1.4; // keep the full launch after leaving the ramp lip
           const liftCap = jumpLift > 0 ? Infinity : 2.5;
           car.drive(dt, { throttle, steer, boost: boosting, brake: braking }, L.engineOn, liftCap);
-          physics.world.step(1 / 120, dt, 10); // 120 Hz: no tunnelling through thin letters at speed
+          physics.world.step(curTier.physicsStep, dt, curTier.physicsMaxSub); // 120 Hz on high: no tunnelling through thin letters at speed
           car.sync(dt, braking || throttle < 0, L.engineOn, surface);
           distance += Math.hypot(cp.x - before.x, cp.z - before.z);
 
@@ -1154,7 +1243,7 @@ export default function CyberWorld() {
           }
           show.update(dt);
           sculptures.update(elapsed);
-          dancers.update(dt, elapsed, live.current.radioOn, env.lamps);
+          dancers.update(dt, elapsed, live.current.radioOn, env.lamps, focus);
           content.interactives.forEach((it, i) => it.ring && it.ring.scale.setScalar(1 + Math.sin(elapsed * 2.2 + i) * 0.05));
           (stations.mast.beacon.material as THREE.MeshStandardMaterial).emissiveIntensity = Math.sin(elapsed * 3) > 0.2 ? 6 : 0.3;
           stations.mast.dish.rotation.z = elapsed * 0.3;
@@ -1380,7 +1469,7 @@ export default function CyberWorld() {
 
           env.followSun(L.started ? bp : camLook);
           post.tick(elapsed);
-          post.composer.render(dt);
+          post.render(dt);
           if (L.capture) {
             // Read the frame right after rendering it (the drawing buffer is still intact).
             L.capture = false;
@@ -1389,7 +1478,7 @@ export default function CyberWorld() {
 
           hudTimer -= dt;
           if (hudTimer <= 0) {
-            hudTimer = 0.08;
+            hudTimer = curTier.hudInterval;
             setSpeedKmh(L.speedKmh);
             setBoostPct(Math.round(L.boost));
             if (minimapRef.current) drawMap(minimapRef.current, true);
@@ -2073,8 +2162,15 @@ export default function CyberWorld() {
             <OptionRow title="Sound" desc="Engine, tyres, impacts and ambience">
               <button className={`switch ${muted ? '' : 'on'}`} onClick={toggleMute}><i /></button>
             </OptionRow>
-            <OptionRow title="High quality" desc="Shadows, glow and full resolution">
-              <button className={`switch ${highQuality ? 'on' : ''}`} onClick={toggleQuality}><i /></button>
+            <OptionRow
+              title="Graphics"
+              desc={qualityMode === 'auto' ? `Auto: tunes itself to your device (now ${TIER_NAMES[activeTier]})` : 'Lower = smoother on older devices'}
+            >
+              <div className="seg">
+                {QUALITY_MODES.map((m) => (
+                  <button key={m} className={qualityMode === m ? 'on' : ''} onClick={() => setQuality(m)}>{m[0].toUpperCase() + m.slice(1)}</button>
+                ))}
+              </div>
             </OptionRow>
             <OptionRow title="Engine" desc="Start or stop the engine (F)">
               <button className={`switch ${engineOn ? 'on' : ''}`} onClick={toggleEngine}><i /></button>
