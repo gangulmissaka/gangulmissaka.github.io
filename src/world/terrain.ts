@@ -78,15 +78,18 @@ export function groundHeight(x: number, z: number) {
 }
 
 export function createGround(scene: THREE.Scene, grassMap: THREE.Texture, noise: THREE.Texture) {
-  const geo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, 200, 200);
+  const geo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, 128, 128);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position as THREE.BufferAttribute;
   for (let i = 0; i < pos.count; i++) pos.setY(i, groundHeight(pos.getX(i), pos.getZ(i)));
   geo.computeVertexNormals();
 
   const mat = new THREE.MeshStandardMaterial({ map: grassMap, roughness: 0.97, metalness: 0 });
+  // Weak GPUs: 1 texture fetch instead of ~10 for the de-tiled grass (the ground covers most of the screen).
+  const uLite = { value: 0 };
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uNoise = { value: noise };
+    shader.uniforms.uLite = uLite;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec2 vGroundXZ;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGroundXZ = (modelMatrix * vec4(transformed, 1.0)).xz;');
@@ -96,6 +99,7 @@ export function createGround(scene: THREE.Scene, grassMap: THREE.Texture, noise:
         /* glsl */ `#include <common>
         varying vec2 vGroundXZ;
         uniform sampler2D uNoise;
+        uniform float uLite;
         // Texture repetition removal (after Inigo Quilez): a smooth noise field picks a
         // per-region random offset, and neighbouring regions are blended together.
         vec3 noTile(sampler2D samp, vec2 uv, float seed) {
@@ -119,9 +123,14 @@ export function createGround(scene: THREE.Scene, grassMap: THREE.Texture, noise:
         vec4 nA = texture2D(uNoise, wp * 0.0042);
         vec4 nB = texture2D(uNoise, wp * 0.019 + 0.37);
         // Two de-tiled layers at different scales and rotations.
-        vec3 gA = noTile(map, wp / 3.6, 0.0);
-        vec3 gB = noTile(map, mat2(0.788, -0.616, 0.616, 0.788) * wp / 5.3, 0.5);
-        vec3 g = mix(gA, gB, smoothstep(0.3, 0.7, nB.r));
+        vec3 g;
+        if (uLite > 0.5) {
+          g = texture2D(map, wp / 3.6).rgb;
+        } else {
+          vec3 gA = noTile(map, wp / 3.6, 0.0);
+          vec3 gB = noTile(map, mat2(0.788, -0.616, 0.616, 0.788) * wp / 5.3, 0.5);
+          g = mix(gA, gB, smoothstep(0.3, 0.7, nB.r));
+        }
         // Large-scale variation: lush and sun-dried patches.
         g *= mix(vec3(0.84, 0.9, 0.74), vec3(1.06, 1.05, 0.94), nA.g);
         g = mix(g, g * vec3(1.12, 1.0, 0.72), smoothstep(0.55, 0.9, nA.r) * 0.55);
@@ -139,7 +148,7 @@ export function createGround(scene: THREE.Scene, grassMap: THREE.Texture, noise:
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;
   scene.add(mesh);
-  return mesh;
+  return Object.assign(mesh, { setLite: (v: boolean) => (uLite.value = v ? 1 : 0) });
 }
 
 // ── Roads ──────────────────────────────────────────────────────────
@@ -419,6 +428,69 @@ export function createGrass(
 
 // ── Forest ring (the boundary the player can't cross) ────────────────
 
+/** Random order, so the first N instances are an even sample (lets a quality tier draw just a fraction). */
+function shuffleInstances(inst: THREE.InstancedMesh, rnd: () => number) {
+  const a = inst.instanceMatrix.array as Float32Array;
+  const c = inst.instanceColor?.array as Float32Array | undefined;
+  const tmp = new Float32Array(16);
+  for (let i = inst.count - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    tmp.set(a.subarray(i * 16, i * 16 + 16));
+    a.copyWithin(i * 16, j * 16, j * 16 + 16);
+    a.set(tmp, j * 16);
+    if (c) {
+      const t3 = [c[i * 3], c[i * 3 + 1], c[i * 3 + 2]];
+      c.copyWithin(i * 3, j * 3, j * 3 + 3);
+      c[j * 3] = t3[0];
+      c[j * 3 + 1] = t3[1];
+      c[j * 3 + 2] = t3[2];
+    }
+  }
+  inst.instanceMatrix.needsUpdate = true;
+  if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+}
+
+/**
+ * A cheaper version of a foliage-card geometry: keeps every other connected card (leaf cluster) and shares the
+ * same vertex buffers, so it costs no extra GPU memory. Small meshes (few cards) are returned unchanged.
+ */
+function liteGeometry(geo: THREE.BufferGeometry): THREE.BufferGeometry {
+  const idx = geo.index;
+  if (!idx || idx.count < 90) return geo;
+  const parent = new Map<number, number>();
+  const find = (x: number): number => {
+    let r = x;
+    while (parent.get(r) !== r) r = parent.get(r)!;
+    while (parent.get(x) !== r) {
+      const n = parent.get(x)!;
+      parent.set(x, r);
+      x = n;
+    }
+    return r;
+  };
+  const a = idx.array;
+  for (let i = 0; i < a.length; i++) if (!parent.has(a[i])) parent.set(a[i], a[i]);
+  for (let i = 0; i < a.length; i += 3) {
+    const r = find(a[i]);
+    parent.set(find(a[i + 1]), r);
+    parent.set(find(a[i + 2]), r);
+  }
+  const order = new Map<number, number>();
+  const keep: number[] = [];
+  for (let i = 0; i < a.length; i += 3) {
+    const r = find(a[i]);
+    if (!order.has(r)) order.set(r, order.size);
+    if (order.get(r)! % 2 === 0) keep.push(a[i], a[i + 1], a[i + 2]);
+  }
+  if (order.size < 6 || keep.length < 30) return geo;
+  const lite = new THREE.BufferGeometry();
+  for (const name of Object.keys(geo.attributes)) lite.setAttribute(name, geo.attributes[name]);
+  lite.setIndex(keep);
+  lite.boundingBox = geo.boundingBox;
+  lite.boundingSphere = geo.boundingSphere;
+  return lite;
+}
+
 export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D) {
   prepModel(forestModel, { receive: true, cutout: 0.42, envIntensity: 0.6 });
   // The GLB includes loose sample trees beside the tile — drop them.
@@ -433,6 +505,7 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
   plain.forEach((o) => o.removeFromParent());
   const tile = normalize(forestModel, FOREST_TILE, 'xz');
   tile.updateMatrixWorld(true);
+  const shuf = mulberry32(7);
   tile.traverse((o) => {
     const inst = o as THREE.InstancedMesh;
     if (!inst.isInstancedMesh) return;
@@ -455,6 +528,7 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
     // The tiles are big and mostly outside the player's shadow frustum; the edge tree line
     // below casts the shadows that matter, which keeps the shadow pass cheap.
     inst.castShadow = false;
+    shuffleInstances(inst, shuf);
   });
 
   const group = new THREE.Group();
@@ -473,6 +547,11 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
     }
   }
   scene.add(group);
+  const thin: { mesh: THREE.InstancedMesh; full: number; orig: THREE.BufferGeometry }[] = [];
+  group.traverse((o) => {
+    const im = o as THREE.InstancedMesh;
+    if (im.isInstancedMesh) thin.push({ mesh: im, full: im.count, orig: im.geometry });
+  });
 
   // Outer forest on the hills, grown from the tile's own tree cards so the horizon is
   // wall-to-wall trees in every direction (and through any gap in the ring).
@@ -511,7 +590,8 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
     const unitBox = src.geometry.boundingBox!.clone().applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(), baseQ, baseS));
     const unitH = unitBox.max.y - unitBox.min.y || 1;
     const COUNT = 2600;
-    const outer = new THREE.InstancedMesh(src.geometry, src.material, COUNT);
+    const GRID = 4;
+    const outerBins: THREE.Matrix4[][] = Array.from({ length: GRID * GRID }, () => []);
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion();
     const yAxis = new THREE.Vector3(0, 1, 0);
@@ -525,16 +605,25 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
       const k = h / unitH;
       q.setFromAxisAngle(yAxis, rand() * Math.PI * 2).multiply(baseQ);
       m.compose(new THREE.Vector3(x, groundHeight(x, z) - unitBox.min.y * k - 0.3, z), q, baseS.clone().multiplyScalar(k));
-      outer.setMatrixAt(n++, m);
+      const cell = Math.min(GRID - 1, Math.floor(((x + 320) / 640) * GRID)) * GRID + Math.min(GRID - 1, Math.floor(((z + 320) / 640) * GRID));
+      outerBins[cell].push(m.clone());
+      n++;
     }
-    outer.computeBoundingSphere();
-    outer.receiveShadow = false;
-    scene.add(outer);
+    // One mesh per map cell so the camera only draws the cells it can actually see.
+    outerBins.forEach((bin) => {
+      if (!bin.length) return;
+      const chunk = new THREE.InstancedMesh(src.geometry, src.material, bin.length);
+      bin.forEach((mm, i) => chunk.setMatrixAt(i, mm));
+      chunk.computeBoundingSphere();
+      chunk.receiveShadow = false;
+      scene.add(chunk);
+      thin.push({ mesh: chunk, full: bin.length, orig: chunk.geometry });
+    });
 
     // A dense tree line just past the invisible wall hides the tiles' terrain edges and
     // reads as a continuous forest wall from inside the meadow.
     const EDGE = 640;
-    const edgeTrees = new THREE.InstancedMesh(src.geometry, src.material, EDGE);
+    const edgeBins: THREE.Matrix4[][] = [[], [], [], []];
     for (let i = 0; i < EDGE; i++) {
       const side = i % 4;
       const along = (rand() * 2 - 1) * (PLAY_HALF + 14);
@@ -545,15 +634,35 @@ export function createForestRing(scene: THREE.Scene, forestModel: THREE.Object3D
       const k = h / unitH;
       q.setFromAxisAngle(yAxis, rand() * Math.PI * 2).multiply(baseQ);
       m.compose(new THREE.Vector3(x, -unitBox.min.y * k - 0.2, z), q, baseS.clone().multiplyScalar(k * (0.85 + rand() * 0.3)));
-      edgeTrees.setMatrixAt(i, m);
+      edgeBins[side].push(m.clone());
     }
-    edgeTrees.computeBoundingSphere();
-    edgeTrees.castShadow = true;
-    edgeTrees.receiveShadow = true;
-    scene.add(edgeTrees);
+    edgeBins.forEach((bin) => {
+      const chunk = new THREE.InstancedMesh(src.geometry, src.material, bin.length);
+      bin.forEach((mm, i) => chunk.setMatrixAt(i, mm));
+      chunk.computeBoundingSphere();
+      chunk.castShadow = true;
+      chunk.receiveShadow = true;
+      scene.add(chunk);
+      thin.push({ mesh: chunk, full: bin.length, orig: chunk.geometry });
+    });
   }
 
-  return group;
+  const liteCache = new Map<THREE.BufferGeometry, THREE.BufferGeometry>();
+  return {
+    group,
+    /** Fraction (0..1) of the trees/bushes to draw. Instances are shuffled, so any prefix is an even sample. */
+    setDensity(f: number, lite = false) {
+      thin.forEach(({ mesh, full, orig }) => {
+        mesh.count = Math.max(1, Math.floor(full * f));
+        let g = orig;
+        if (lite) {
+          g = liteCache.get(orig) ?? liteGeometry(orig);
+          liteCache.set(orig, g);
+        }
+        mesh.geometry = g;
+      });
+    },
+  };
 }
 
 export type { V2 };

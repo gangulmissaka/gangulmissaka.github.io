@@ -623,7 +623,7 @@ export default function CyberWorld() {
         const lawn = bakeTopDown(renderer, models.chamois, [0.73, 0.72, 0.93, 0.93], 1024, 1024);
         const noise = makeNoiseTexture(256);
 
-        createGround(scene, lawn.texture, noise);
+        const ground = createGround(scene, lawn.texture, noise);
         const roadPaths = sampleRoads();
         const roadDistance = makeRoadDistance(roadPaths);
         createRoads(scene, roadPaths, road.texture, road.worldLength / road.worldWidth);
@@ -635,7 +635,7 @@ export default function CyberWorld() {
         pond.setPixelRatio(renderer.getPixelRatio());
         const graph = createRoadGraph(roadPaths);
         const driver = createDriver();
-        createForestRing(scene, models.forest);
+        const forest = createForestRing(scene, models.forest);
         const { placed: landmarks, showcaseModels } = placeLandmarks(scene, physics, models);
         const sculptures = createSculptures(scene, physics);
         const dancers = createDancers(scene, physics);
@@ -698,7 +698,7 @@ export default function CyberWorld() {
         const letterBodies = new Set(content.letters.map((l) => l.body));
         if (process.env.NODE_ENV !== 'production') {
           // Dev-only hook for headless physics checks.
-          (window as unknown as { __world: unknown }).__world = { car, physics, crates: playground.dynamic.filter((d) => BODY_KIND.get(d.body) === 'wood'), live: live.current };
+          (window as unknown as { __world: unknown }).__world = { car, physics, crates: playground.dynamic.filter((d) => BODY_KIND.get(d.body) === 'wood'), live: live.current, scene, renderer, camera, THREE };
         }
 
         // ── Collision sounds (positioned relative to the camera) ──
@@ -937,6 +937,8 @@ export default function CyberWorld() {
         vignetteEl.style.cssText =
           'position:absolute;inset:0;display:none;pointer-events:none;background:radial-gradient(ellipse at center,rgba(8,10,14,0) 45%,rgba(8,10,14,0.55) 100%)';
         container.appendChild(vignetteEl);
+        let physMs = 0;
+        let renderMs = 0;
         let appliedTier = -1;
         let curTier = TIERS[2];
         let shadowFrame = 0;
@@ -1035,6 +1037,8 @@ export default function CyberWorld() {
               renderer.shadowMap.autoUpdate = curTier.shadowEvery === 1;
               renderer.shadowMap.needsUpdate = true;
               grassField.setDensity(curTier.grass);
+              forest.setDensity(curTier.forest, curTier.liteTrees);
+              ground.setLite(curTier.lightGround);
               dancers.setLowDetail(curTier.lowDetailAnim);
               setActiveTier(s.tier);
             }
@@ -1042,7 +1046,7 @@ export default function CyberWorld() {
           if (!renderer.shadowMap.autoUpdate && ++shadowFrame % curTier.shadowEvery === 0) renderer.shadowMap.needsUpdate = true;
           if (fpsEl && (fpsTimer -= rawDt) <= 0) {
             fpsTimer = 0.5;
-            fpsEl.textContent = `${TIER_NAMES[appliedTier]} | ${Math.round(1000 / Math.max(1, gov.avgMs))} fps | ${gov.avgMs.toFixed(1)} ms | x${renderer.getPixelRatio().toFixed(2)}${gov.enabled ? ' auto' : ''}`;
+            fpsEl.textContent = `${TIER_NAMES[appliedTier]} | ${Math.round(1000 / Math.max(1, gov.avgMs))} fps | ${gov.avgMs.toFixed(1)} ms | x${renderer.getPixelRatio().toFixed(2)}${gov.enabled ? ' auto' : ''} | calls ${renderer.info.render.calls} tris ${(renderer.info.render.triangles / 1000).toFixed(0)}k geo ${renderer.info.memory.geometries} tex ${renderer.info.memory.textures} | phys ${physMs.toFixed(1)}ms render-js ${renderMs.toFixed(1)}ms bodies ${physics.world.bodies.length}`;
           }
 
           // Time of day
@@ -1172,7 +1176,9 @@ export default function CyberWorld() {
           if (nearRamp) jumpLift = 1.4; // keep the full launch after leaving the ramp lip
           const liftCap = jumpLift > 0 ? Infinity : 2.5;
           car.drive(dt, { throttle, steer, boost: boosting, brake: braking }, L.engineOn, liftCap);
+          const tp0 = performance.now();
           physics.world.step(curTier.physicsStep, dt, curTier.physicsMaxSub); // 120 Hz on high: no tunnelling through thin letters at speed
+          physMs = physMs * 0.9 + (performance.now() - tp0) * 0.1;
           car.sync(dt, braking || throttle < 0, L.engineOn, surface);
           distance += Math.hypot(cp.x - before.x, cp.z - before.z);
 
@@ -1469,7 +1475,9 @@ export default function CyberWorld() {
 
           env.followSun(L.started ? bp : camLook);
           post.tick(elapsed);
+          const tr0 = performance.now();
           post.render(dt);
+          renderMs = renderMs * 0.9 + (performance.now() - tr0) * 0.1;
           if (L.capture) {
             // Read the frame right after rendering it (the drawing buffer is still intact).
             L.capture = false;

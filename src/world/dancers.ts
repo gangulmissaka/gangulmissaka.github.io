@@ -38,6 +38,48 @@ function pinRootMotion(clip: THREE.AnimationClip) {
   }
 }
 
+/**
+ * The exported character is split into dozens of tiny skinned meshes that share one set of vertex buffers.
+ * Every one of them is a draw call and (after cloning) its own skeleton to update each frame, ×6 dancers.
+ * Joining the parts that use the same material into one mesh gives identical pixels for a fraction of the cost.
+ */
+function mergeSkinnedParts(root: THREE.Object3D) {
+  const byMaterial = new Map<THREE.Material, THREE.SkinnedMesh[]>();
+  root.traverse((o) => {
+    const m = o as THREE.SkinnedMesh;
+    if (!m.isSkinnedMesh || Array.isArray(m.material) || !m.geometry.index) return;
+    const list = byMaterial.get(m.material);
+    if (list) list.push(m);
+    else byMaterial.set(m.material, [m]);
+  });
+  byMaterial.forEach((meshes) => {
+    if (meshes.length < 2) return;
+    const first = meshes[0];
+    const pos = first.geometry.attributes.position;
+    const sameBuffers = meshes.every((m) => m.geometry.attributes.position === pos && m.parent === first.parent);
+    if (!sameBuffers) return;
+    let total = 0;
+    meshes.forEach((m) => (total += m.geometry.index!.count));
+    const merged = new Uint32Array(total);
+    let at = 0;
+    meshes.forEach((m) => {
+      merged.set(m.geometry.index!.array as ArrayLike<number>, at);
+      at += m.geometry.index!.count;
+    });
+    const geo = new THREE.BufferGeometry();
+    for (const name of Object.keys(first.geometry.attributes)) geo.setAttribute(name, first.geometry.attributes[name]);
+    geo.setIndex(new THREE.BufferAttribute(merged, 1));
+    const sm = new THREE.SkinnedMesh(geo, first.material as THREE.Material);
+    sm.name = first.name;
+    sm.position.copy(first.position);
+    sm.quaternion.copy(first.quaternion);
+    sm.scale.copy(first.scale);
+    first.parent!.add(sm);
+    sm.bind(first.skeleton, first.bindMatrix);
+    meshes.forEach((m) => m.removeFromParent());
+  });
+}
+
 /** Vertical fade for the spotlight beam: bright at the top, gone at the ground. */
 function beamTexture() {
   return canvasTexture(8, 128, (ctx) => {
@@ -91,6 +133,8 @@ export function createDancers(scene: THREE.Scene, physics: Physics) {
     // A still, first-frame pose to stand in while the radio is quiet.
     const poseClip = THREE.AnimationUtils.subclip(clip, 'pose', 0, 1, 30);
 
+    source.updateMatrixWorld(true);
+    mergeSkinnedParts(source);
     source.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(source);
     const scale = HEIGHT / Math.max(0.01, box.max.y - box.min.y);

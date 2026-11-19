@@ -21,6 +21,9 @@ export interface TierSettings {
   /** Re-render the shadow map every n-th frame (it follows the car, so 2 is invisible in practice). */
   shadowEvery: number;
   grass: number; // fraction of grass blades
+  forest: number; // fraction of the trees / bushes (the single biggest triangle cost)
+  liteTrees: boolean; // half the leaf cards per tree
+  lightGround: boolean; // 1 texture fetch instead of ~10 for the lawn shader
   physicsStep: number;
   physicsMaxSub: number;
   hudInterval: number; // seconds between React HUD refreshes
@@ -36,6 +39,9 @@ export const TIERS: Record<Tier, TierSettings> = {
     shadowMapSize: 1024,
     shadowEvery: 1,
     grass: 0.3,
+    forest: 0.5,
+    liteTrees: true,
+    lightGround: true,
     physicsStep: 1 / 75,
     physicsMaxSub: 4,
     hudInterval: 0.2,
@@ -49,6 +55,9 @@ export const TIERS: Record<Tier, TierSettings> = {
     shadowMapSize: 1024,
     shadowEvery: 2,
     grass: 0.6,
+    forest: 0.7,
+    liteTrees: false,
+    lightGround: true,
     physicsStep: 1 / 90,
     physicsMaxSub: 6,
     hudInterval: 0.12,
@@ -62,6 +71,9 @@ export const TIERS: Record<Tier, TierSettings> = {
     shadowMapSize: 2048,
     shadowEvery: 1,
     grass: 1,
+    forest: 1,
+    liteTrees: false,
+    lightGround: false,
     physicsStep: 1 / 120,
     physicsMaxSub: 10,
     hudInterval: 0.08,
@@ -200,7 +212,7 @@ export function createGovernor(opts: {
       if (!enabled || sinceChange < 3) return; // warm-up after load / after a change
 
       const t = TIERS[tier];
-      if (avgMs > 23) {
+      if (avgMs > 20) {
         fastWins = 0;
         slowWins++;
         // react quickly when it is really bad
@@ -217,10 +229,10 @@ export function createGovernor(opts: {
           sinceChange = 0;
           emit();
         }
-      } else if (avgMs < 15.5) {
+      } else if (avgMs < 14.5) {
         slowWins = 0;
         fastWins++;
-        if (fastWins >= 6) {
+        if (fastWins >= 8) {
           fastWins = 0;
           const max = t.maxPixelRatio(dpr);
           if (pr < max - 0.01) {
