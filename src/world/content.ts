@@ -1,3 +1,4 @@
+import { asset } from '@/lib/basePath';
 // In-world content: the name title, ground decals, about board, notice board,
 // "How I Build" stones and contact tiles.
 import * as THREE from 'three';
@@ -198,7 +199,7 @@ export async function createContent(scene: THREE.Scene, physics: Physics) {
   // 1. Name title: every letter is a rigid body whose collider follows the glyph's real
   //    outline (holes and gaps included), with its centre of mass where the material is.
   try {
-    const json = await fetch('/fonts/helvetiker_bold.typeface.json').then((r) => r.json());
+    const json = await fetch(asset('/fonts/helvetiker_bold.typeface.json')).then((r) => r.json());
     const font = new FontLoader().parse(json);
     const size = NAME_TITLE.size;
     const depth = 0.7;

@@ -40,11 +40,23 @@ jobs:
           # Tell Next.js to skip image optimisation (required for static export)
           NEXT_TELEMETRY_DISABLED: 1
 
+      # Site layout: /valley/ = the 3D world (built with basePath /valley);
+      # / and 404.html forward to the main portfolio (repository variable MAIN_SITE_URL).
+      - name: Assemble site
+        env:
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}
+        run: |
+          test -n "$MAIN_SITE_URL" || { echo "Set the MAIN_SITE_URL repository variable"; exit 1; }
+          MAIN="${MAIN_SITE_URL%/}"
+          mkdir -p site/valley
+          cp -r out/. site/valley/
+          for f in index.html 404.html; do sed "s#__MAIN_SITE_URL__#${MAIN}#g" "pages-root/$f" > "site/$f"; done
+          touch site/.nojekyll
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # next build with output:'export' writes to ./out
-          path: ./out
+          path: ./site
 
   deploy:
     name: Deploy to GitHub Pages

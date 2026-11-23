@@ -231,3 +231,10 @@ Phones/tablets (`pointer: coarse` + short side < 900px, or `?mobile` on desktop)
   map, tour, photo, quick view, awards, about, help, options. The top-bar icon row is hidden on mobile.
 - **Camera:** defaults to `chase`; on mobile it sits lower/closer (8.2 m back, 3.3 m up). FOV is 84° portrait / 72° landscape
   (+8 while boosting); desktop stays 50°.
+
+## Hosting (2026-11-24)
+
+This site now lives at **https://gangulmissaka.github.io/valley/** (`basePath` `/valley` in `next.config.js`; raw asset
+URLs go through `asset()` in `src/lib/basePath.ts`). The github.io root and `404.html` (`pages-root/`) forward to the
+main portfolio, whose URL is the repository variable `MAIN_SITE_URL` used by the deploy workflow. The main portfolio
+links here with plain links, so none of this 3D site loads until a visitor chooses it.

@@ -1,3 +1,4 @@
+import { asset } from '@/lib/basePath';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // @ts-expect-error -- @types/three points these typings at the separate `meshoptimizer` package; the JS export exists.
@@ -59,7 +60,7 @@ export function loadModels(onProgress: (p: number) => void): Promise<ModelSet> {
       (key) =>
         new Promise<[ModelKey, THREE.Group]>((resolve, reject) => {
           loader.load(
-            `/models/${MODEL_FILES[key]}.glb`,
+            asset(`/models/${MODEL_FILES[key]}.glb`),
             (gltf) => {
               done[key] = 1;
               report();

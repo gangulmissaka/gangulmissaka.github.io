@@ -536,3 +536,10 @@ button.minimap { background: none; border: 0; padding: 0; cursor: pointer; point
 
 /* Mobile browsers: size to the visible viewport so the URL/toolbar never covers the controls. */
 .world-root.is-mobile { inset: 0 0 auto 0; height: 100vh; height: 100dvh; }
+
+/* links back to the main (non-3D) portfolio */
+.intro-back { display: inline-block; margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.7); text-decoration: underline; text-underline-offset: 3px; }
+.intro-back:hover { color: #fff; }
+.hud-back { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 40; padding: 7px 14px; border-radius: 999px; font-size: 12px; color: #fff; text-decoration: none; pointer-events: auto; }
+.is-photo .hud-back { display: none; }
+.is-mobile .hud-back { bottom: auto; top: 64px; }

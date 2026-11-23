@@ -1,3 +1,4 @@
+import { asset } from '@/lib/basePath';
 // Dancers that come alive whenever the radio plays a song. One skinned character with one clip
 // (Mixamo: "Northern Soul Spin Combo"), cloned to every spot in DANCER_SPOTS. The model loads in the
 // background after the world is up, so it never delays the intro.
@@ -8,7 +9,7 @@ import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js
 import { DANCER_SPOTS } from './layout';
 import { BODY_KIND, canvasTexture, type Physics } from './props';
 
-const MODEL_URL = '/models/dancer.glb';
+const MODEL_URL = asset('/models/dancer.glb');
 /** Height of the character in world units (metres). */
 const HEIGHT = 1.74;
 /** Seconds to blend between standing and dancing. */

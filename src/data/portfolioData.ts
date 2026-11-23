@@ -1,3 +1,4 @@
+import { asset } from '@/lib/basePath';
 // All site content lives here (source: Gangul_Missaka_Details.docx).
 
 export const SITE = {
@@ -8,7 +9,7 @@ export const SITE = {
   university: 'Edith Cowan University',
   location: 'Colombo, Sri Lanka',
   status: 'Open to opportunities',
-  photo: '/images/gangul.jpg',
+  photo: asset('/images/gangul.jpg'),
   tagline: 'Drive around the valley to discover my projects, skills and how I build software.',
   taglines: ['Crafting the Future', 'Software Engineering Excellence', 'AI & Data Driven Architecture'],
   summary:

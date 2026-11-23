@@ -1,3 +1,4 @@
+import { MAIN_SITE_URL } from '@/lib/basePath';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
@@ -1628,6 +1629,7 @@ export default function CyberWorld() {
                   Quick view (no driving)
                 </button>
               </div>
+              <a className="intro-back" href={MAIN_SITE_URL}>← Back to the main portfolio</a>
               <div className="intro-hint">
                 <span className="kbd">W</span><span className="kbd">A</span><span className="kbd">S</span><span className="kbd">D</span>
                 to drive · <span className="kbd">Space</span> jump · <span className="kbd">E</span> interact · sound on
@@ -1650,6 +1652,7 @@ export default function CyberWorld() {
       {started && (
         <>
           <header className="hud-top">
+            <a className="hud-back glass" href={MAIN_SITE_URL} title="Back to the main portfolio">← Main site</a>
             <button className="brand glass" onClick={() => { openPanel('about'); actions.current.unlock('about'); }} title="About me">
               <img className="brand-photo" src={SITE.photo} alt="" />
               <div>
